@@ -1,24 +1,143 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
 }
-
 
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  role      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model cliente {
+  id_cliente       Int       @id @default(autoincrement()) @db.UnsignedInt
+  nombre           String?   @db.VarChar(100)
+  apellido         String?   @db.VarChar(100)
+  direccion        String?   @db.VarChar(255)
+  correo           String?   @db.VarChar(100)
+  telefono_cliente String?   @db.VarChar(20)
+  paquete          paquete[]
+}
+
+model conductor_detalle {
+  id_usuario     Int      @id @db.UnsignedInt
+  fecha_registro DateTime @db.Date
+  usuario        usuario  @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade, onUpdate: Restrict, map: "conductor_detalle_ibfk_1")
+}
+
+model empresa {
+  id_empresa     Int       @id @default(autoincrement()) @db.UnsignedInt
+  nit            String    @unique(map: "nit") @db.VarChar(50)
+  nombre_empresa String    @db.VarChar(255)
+  telefono       String?   @db.VarChar(20)
+  usuario        usuario[]
+}
+
+model paquete {
+  id_paquete      Int               @id @default(autoincrement()) @db.UnsignedInt
+  fecha_entrega   DateTime?         @db.Date
+  tipo_paquete    String?           @db.VarChar(100)
+  codigo_rastreo  String?           @unique(map: "codigo_rastreo") @db.VarChar(100)
+  estado_entrega  String            @default("pendiente") @db.VarChar(50)
+  largo           Float             @db.Float
+  ancho           Float             @db.Float
+  alto            Float             @db.Float
+  peso            Float             @db.Float
+  id_cliente      Int               @db.UnsignedInt
+  cliente         cliente           @relation(fields: [id_cliente], references: [id_cliente], onUpdate: Restrict, map: "paquete_ibfk_1")
+  paquete_en_ruta paquete_en_ruta[]
+
+  @@index([id_cliente], map: "id_cliente")
+}
+
+model paquete_en_ruta {
+  id         Int     @id @default(autoincrement()) @db.UnsignedInt
+  id_ruta    Int     @db.UnsignedInt
+  id_paquete Int     @db.UnsignedInt
+  ruta       ruta    @relation(fields: [id_ruta], references: [id_ruta], onUpdate: Restrict, map: "paquete_en_ruta_ibfk_1")
+  paquete    paquete @relation(fields: [id_paquete], references: [id_paquete], onUpdate: Restrict, map: "paquete_en_ruta_ibfk_2")
+
+  @@unique([id_ruta, id_paquete], map: "ruta_paquete")
+  @@index([id_paquete], map: "id_paquete")
+}
+
+model permiso {
+  id_permiso  Int           @id @default(autoincrement()) @db.UnsignedInt
+  nombre      String        @unique(map: "nombre") @db.VarChar(100)
+  rol_permiso rol_permiso[]
+}
+
+model reporte {
+  id_reporte    Int      @id @default(autoincrement()) @db.UnsignedInt
+  detalle       String   @db.Text
+  tipo_reporte  String?  @db.VarChar(50)
+  fecha_reporte DateTime @db.Date
+  id_usuario    Int      @db.UnsignedInt
+  usuario       usuario  @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade, onUpdate: Restrict, map: "reporte_ibfk_1")
+
+  @@index([id_usuario], map: "id_usuario")
+}
+
+model rol {
+  id_rol      Int           @id @default(autoincrement()) @db.UnsignedInt
+  nombre      String        @unique(map: "nombre") @db.VarChar(50)
+  rol_permiso rol_permiso[]
+  usuario     usuario[]
+}
+
+model rol_permiso {
+  id_rol     Int     @db.UnsignedInt
+  id_permiso Int     @db.UnsignedInt
+  rol        rol     @relation(fields: [id_rol], references: [id_rol], onDelete: Cascade, onUpdate: Restrict, map: "rol_permiso_ibfk_1")
+  permiso    permiso @relation(fields: [id_permiso], references: [id_permiso], onDelete: Cascade, onUpdate: Restrict, map: "rol_permiso_ibfk_2")
+
+  @@id([id_rol, id_permiso])
+  @@index([id_permiso], map: "id_permiso")
+}
+
+model ruta {
+  id_ruta           Int               @id @default(autoincrement()) @db.UnsignedInt
+  estado            String?           @default("pendiente") @db.VarChar(50)
+  fecha_creacion    DateTime          @db.Date
+  fecha_inicio      DateTime?         @db.Date
+  fecha_fin         DateTime?         @db.Date
+  cod_manifiesto    String?           @unique(map: "codigo_rastreo") @db.VarChar(100)
+  direccion_destino String?           @db.VarChar(255)
+  id_conductor      Int?              @db.UnsignedInt
+  paquete_en_ruta   paquete_en_ruta[]
+  usuario           usuario?          @relation(fields: [id_conductor], references: [id_usuario], onDelete: Restrict, onUpdate: Restrict, map: "ruta_ibfk_1")
+
+  @@index([id_conductor], map: "id_conductor")
+}
+
+model usuario {
+  id_usuario        Int                @id @default(autoincrement()) @db.UnsignedInt
+  correo            String             @unique(map: "correo") @db.VarChar(255)
+  contrasena        String             @db.VarChar(255)
+  nombre            String?            @db.VarChar(100)
+  apellido          String?            @db.VarChar(100)
+  telefono_movil    String?            @db.VarChar(20)
+  id_empresa        Int                @db.UnsignedInt
+  id_rol            Int                @db.UnsignedInt
+  tipo_documento    String?            @db.VarChar(20)
+  documento         String?            @db.VarChar(20)
+  uid               String             @db.VarChar(50)
+  conductor_detalle conductor_detalle?
+  reporte           reporte[]
+  ruta              ruta[]
+  empresa           empresa            @relation(fields: [id_empresa], references: [id_empresa], onUpdate: Restrict, map: "usuario_ibfk_1")
+  rol               rol                @relation(fields: [id_rol], references: [id_rol], onUpdate: Restrict, map: "usuario_ibfk_2")
+  vehiculo          vehiculo[]
+
+  @@index([id_empresa], map: "id_empresa")
+  @@index([id_rol], map: "id_rol")
+}
+
+model vehiculo {
+  id_vehiculo   Int     @id @default(autoincrement()) @db.UnsignedInt
+  placa         String  @unique(map: "placa") @db.VarChar(20)
+  marca         String? @db.VarChar(50)
+  tipo_vehiculo String? @db.VarChar(50)
+  id_usuario    Int     @db.UnsignedInt
+  usuario       usuario @relation(fields: [id_usuario], references: [id_usuario], onUpdate: Restrict, map: "vehiculo_ibfk_1")
+
+  @@index([id_usuario], map: "vehiculo_ibfk_1")
 }

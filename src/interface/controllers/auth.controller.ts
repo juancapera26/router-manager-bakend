@@ -1,48 +1,97 @@
-// src/interface/controllers/auth.controller.ts
-import { Controller, Post, Body } from '@nestjs/common';
-import { FirebaseAuthProvider } from 'src/infrastructure/auth/firebase-auth.provider';
-import { RegisterUserDto } from './dto/register-user.dto';
+/* src/interface/controllers/auth.controller.ts */
+import {
+  Controller,
+  Post,
+  Body,
+  ConflictException,
+  BadRequestException
+} from '@nestjs/common';
+import {FirebaseAuthProvider} from 'src/infrastructure/auth/firebase-auth.provider';
+import {RegisterUserDto} from './dto/register-user.dto';
+import {RegisterUserUseCase} from 'src/application/auth/use-cases/register-user.use-case';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly firebaseAuthProvider: FirebaseAuthProvider) {}
+  constructor(
+    private readonly firebaseAuthProvider: FirebaseAuthProvider,
+    private readonly registerUser: RegisterUserUseCase
+  ) {}
 
   @Post('register')
   async register(
-    @Body() body: RegisterUserDto,
+    @Body() body: RegisterUserDto
   ): Promise<
-    | { success: true; uid: string; token: string; role: string }
-    | { success: true; uid: string; role: string }
+    | {success: true; uid: string; token: string; role: string}
+    | {success: true; uid: string; role: string}
   > {
-    const { email, password, role, isPublicRegistration } = body;
+    const {
+      email,
+      password,
+      role,
+      isPublicRegistration,
+      nombre,
+      apellido,
+      telefono_movil,
+      id_empresa,
+      tipo_documento,
+      documento
+    } = body;
 
-    const uid = await this.firebaseAuthProvider.createUser(email, password);
-    await this.firebaseAuthProvider.setRole(uid, role);
-
-    // 3. Validar el rol fue correctamente asignado
-    const actualRole = await this.firebaseAuthProvider.getRole(uid);
-    if (actualRole !== role) {
-      throw new Error(
-        `❌ El rol no fue asignado correctamente. Se esperaba: ${role}, pero se obtuvo: ${actualRole}`,
+    let uid: string;
+    try {
+      uid = await this.firebaseAuthProvider.createUserIfNotExists(
+        email,
+        password
+      );
+    } catch (error: any) {
+      // ConflictException para correo duplicado
+      if (error instanceof ConflictException) {
+        throw error;
+      }
+      // Otros errores
+      throw new BadRequestException(
+        error?.message || 'Error al crear usuario en Firebase.'
       );
     }
 
-    // Solo si viene del frontend público (registro abierto)
-    if (isPublicRegistration === true) {
-      const customToken =
-        await this.firebaseAuthProvider.generateCustomToken(uid);
-      return {
-        success: true,
-        uid,
-        role: actualRole,
-        token: customToken,
-      };
-    }
+    try {
+      // Asignar rol
+      await this.firebaseAuthProvider.setRole(uid, role);
+      // Esperar propagación de customClaims
+      await new Promise(res => setTimeout(res, 1000));
+      const actualRole = await this.firebaseAuthProvider.getRole(uid);
+      if (!actualRole || actualRole !== String(role)) {
+        console.warn(
+          `⚠️  Rol asignado con posible error o discrepancia. Esperado: ${role}, Obtenido: ${actualRole}`
+        );
+      }
 
-    return {
-      success: true,
-      role: actualRole,
-      uid,
-    };
+      // Lógica de dominio
+      await this.registerUser.execute(
+        email,
+        password,
+        nombre,
+        apellido,
+        telefono_movil,
+        parseInt(id_empresa),
+        parseInt(role),
+        tipo_documento,
+        documento,
+        uid
+      );
+
+      if (isPublicRegistration === true) {
+        const customToken =
+          await this.firebaseAuthProvider.generateCustomToken(uid);
+        return {success: true, uid, role: actualRole ?? '', token: customToken};
+      }
+
+      return {success: true, uid, role: actualRole ?? ''};
+    } catch (error: any) {
+      console.error('[AuthController] Error en register:', error);
+      throw new BadRequestException(
+        error?.message || 'Error al registrar el usuario.'
+      );
+    }
   }
 }

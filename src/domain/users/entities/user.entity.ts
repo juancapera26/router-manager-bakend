@@ -1,9 +1,14 @@
-export class User {
+export class Usuario {
   constructor(
-    public readonly id: string,
-    public readonly email: string,
-    public readonly role: string,
-    public readonly createdAt: Date,
-    public readonly updatedAt: Date,
+    public readonly correo: string,
+    public readonly contrasena: string,
+    public readonly nombre: string | null,
+    public readonly apellido: string | null,
+    public readonly telefono_movil: string | null,
+    public readonly id_empresa: number,
+    public readonly id_rol: number,
+    public readonly tipo_documento: string | null,
+    public readonly documento: string | null,
+    public readonly uid: string
   ) {}
 }
