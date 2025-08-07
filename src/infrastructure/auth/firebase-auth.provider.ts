@@ -14,18 +14,29 @@ export class FirebaseAuthProvider implements AuthProvider {
     return user.uid;
   }
 
-  async setRole(uid: string, role: string): Promise<void> {
+  async setRole(
+    uid: string,
+    role: string,
+    nombre?: string,
+    apellido?: string
+  ): Promise<void> {
     try {
-      console.log(`[setRole] UID: ${uid}, Role: ${role}`);
-      await admin.auth().setCustomUserClaims(uid, {role});
-      console.log(`[setRole] Rol asignado correctamente`);
+      const claims = {role};
+
+      if (nombre) claims['nombre'] = nombre;
+      if (apellido) claims['apellido'] = apellido;
+
+      console.log(`[setRole] UID: ${uid}, Claims:`, claims);
+      await admin.auth().setCustomUserClaims(uid, claims);
+      console.log(`[setRole] Claims asignados correctamente`);
     } catch (error: any) {
-      console.error('[setRole] 🔥 Error al asignar custom claim:', error);
+      console.error('[setRole] 🔥 Error al asignar claims:', error);
       throw new Error(
         `[setRole] Firebase error: ${error.message || error.toString()}`
       );
     }
   }
+
   async createUserIfNotExists(
     email: string,
     password: string
