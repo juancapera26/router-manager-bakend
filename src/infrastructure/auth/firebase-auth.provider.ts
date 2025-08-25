@@ -9,8 +9,12 @@ import {admin} from '../../shared/firebase-admin';
 
 @Injectable()
 export class FirebaseAuthProvider implements AuthProvider {
-  async createUser(email: string, password: string): Promise<string> {
-    const user = await admin.auth().createUser({email, password});
+  async createUser(
+    email: string,
+    password: string,
+    displayName?: string
+  ): Promise<string> {
+    const user = await admin.auth().createUser({email, password, displayName});
     return user.uid;
   }
 
@@ -39,21 +43,21 @@ export class FirebaseAuthProvider implements AuthProvider {
 
   async createUserIfNotExists(
     email: string,
-    password: string
+    password: string,
+    displayName?: string
   ): Promise<string> {
     try {
-      // Verificar si ya existe
       await admin.auth().getUserByEmail(email);
-      // Si llega aquí, el usuario existe
       throw new ConflictException('El correo ya está registrado.');
     } catch (error: any) {
-      // Si no existe, getUserByEmail lanza auth/user-not-found
       if (error.code === 'auth/user-not-found') {
-        // Crear usuario
-        const user = await admin.auth().createUser({email, password});
+        const user = await admin.auth().createUser({
+          email,
+          password,
+          displayName
+        });
         return user.uid;
       }
-      // Si es algún otro error
       if (error instanceof ConflictException) {
         throw error;
       }
@@ -62,6 +66,7 @@ export class FirebaseAuthProvider implements AuthProvider {
       );
     }
   }
+
   async getRole(uid: string): Promise<string | null> {
     const user = await admin.auth().getUser(uid);
     return (user.customClaims?.role as string) ?? null;
