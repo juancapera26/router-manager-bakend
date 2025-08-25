@@ -41,32 +41,38 @@ export class AuthController {
     try {
       uid = await this.firebaseAuthProvider.createUserIfNotExists(
         email,
-        password
+        password,
+        `${nombre} ${apellido}`
       );
+
+      // ✅ Validación inmediata para evitar null/undefined
+      if (!uid) {
+        throw new BadRequestException('Firebase no devolvió un UID válido.');
+      }
     } catch (error: any) {
-      // ConflictException para correo duplicado
       if (error instanceof ConflictException) {
         throw error;
       }
-      // Otros errores
       throw new BadRequestException(
         error?.message || 'Error al crear usuario en Firebase.'
       );
     }
 
     try {
-      // Asignar rol
+      // Asignar rol en Firebase
       await this.firebaseAuthProvider.setRole(uid, role);
+
       // Esperar propagación de customClaims
       await new Promise(res => setTimeout(res, 1000));
+
       const actualRole = await this.firebaseAuthProvider.getRole(uid);
       if (!actualRole || actualRole !== String(role)) {
         console.warn(
-          `⚠️  Rol asignado con posible error o discrepancia. Esperado: ${role}, Obtenido: ${actualRole}`
+          `⚠️ Rol asignado con posible error o discrepancia. Esperado: ${role}, Obtenido: ${actualRole}`
         );
       }
 
-      // Lógica de dominio
+      // Lógica de dominio: registro en tu base de datos
       await this.registerUser.execute(
         email,
         password,
@@ -80,6 +86,7 @@ export class AuthController {
         uid
       );
 
+      // Si es un registro público → devolver también customToken
       if (isPublicRegistration === true) {
         const customToken =
           await this.firebaseAuthProvider.generateCustomToken(uid);
