@@ -59,9 +59,8 @@ export class AuthController {
     }
 
     try {
-      // Asignar rol en Firebase
-      await this.firebaseAuthProvider.setRole(uid, role);
-
+      // Asignar rol
+      await this.firebaseAuthProvider.setRole(uid, role, nombre, apellido);
       // Esperar propagación de customClaims
       await new Promise(res => setTimeout(res, 1000));
 
