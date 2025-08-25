@@ -1,20 +1,24 @@
-// src/auth/auth.module.ts
+//auth.module.ts
 import { Module } from '@nestjs/common';
-import { AuthController } from 'src/interface/controllers/auth.controller';
+import { AuthController } from './auth.controller';
 import { AssignRoleController } from 'src/interface/controllers/assign-role.controller';
 import { FirebaseAuthProvider } from 'src/infrastructure/auth/firebase-auth.provider';
 import { RegisterUserUseCase } from 'src/application/auth/use-cases/register-user.use-case';
+import { AuthService } from './auth.service';
+import { MailModule } from '../mail/mail.module';
 
 @Module({
+  imports: [MailModule],
   controllers: [AuthController, AssignRoleController],
   providers: [
-    FirebaseAuthProvider, // ✅ Solo este
+    FirebaseAuthProvider,
     RegisterUserUseCase,
+    AuthService,
     {
-      provide: 'AuthProvider', // 👈 Este es el token que Nest necesita
+      provide: 'AuthProvider',
       useClass: FirebaseAuthProvider,
     },
   ],
-  exports: [FirebaseAuthProvider],
+  exports: [FirebaseAuthProvider, AuthService],
 })
-export class AuthModule {} // ✅ Esta es la clase real del módulo
+export class AuthModule {}
