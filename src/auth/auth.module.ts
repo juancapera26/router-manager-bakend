@@ -1,13 +1,15 @@
-// src/auth/auth.module.ts
+//auth.module.ts
 
-import {Module} from '@nestjs/common';
-import {AuthController} from 'src/interface/controllers/auth.controller';
-import {RegisterUserUseCase} from 'src/application/auth/use-cases/register-user.use-case';
-import {InfrastructureModule} from 'src/infrastructure/infrastructure.module';
+// auth.module.ts
+import { Module } from '@nestjs/common';
+import { AuthController } from './auth.controller'; // ⚠️ la ruta correcta
+import { AuthService } from './auth.service'; // ⚠️ agrega el servicio
+import { MailModule } from '../mail/mail.module'; // si tu AuthService usa MailService
+import { InfrastructureModule } from 'src/infrastructure/infrastructure.module';
 
 @Module({
-  imports: [InfrastructureModule],
+  imports: [InfrastructureModule, MailModule],
   controllers: [AuthController],
-  providers: [RegisterUserUseCase]
+  providers: [AuthService]
 })
 export class AuthModule {}
