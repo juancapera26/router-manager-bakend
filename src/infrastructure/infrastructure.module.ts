@@ -1,3 +1,4 @@
+// src/infrastructure/infrastructure.module.ts
 import {Module} from '@nestjs/common';
 import {FirebaseAuthProvider} from './auth/firebase-auth.provider';
 import {PrismaUserRepository} from './persistence/prisma/prisma-user.repository';
@@ -18,6 +19,6 @@ import {USER_REPOSITORY} from 'src/domain/users/tokens/user-repository.token';
     PrismaUserRepository,
     PrismaService
   ],
-  exports: [FirebaseAuthProvider, 'AuthProvider', USER_REPOSITORY]
+  exports: [FirebaseAuthProvider, 'AuthProvider', USER_REPOSITORY, PrismaService]
 })
 export class InfrastructureModule {}
