@@ -4,14 +4,22 @@ import {
   Post,
   Body,
   ConflictException,
-  BadRequestException
+  BadRequestException,
+  Req,
+  UnauthorizedException,
+  Get
 } from '@nestjs/common';
+import {Request} from 'express';
 import {FirebaseAuthProvider} from 'src/infrastructure/auth/firebase-auth.provider';
 import {RegisterUserDto} from './dto/register-user.dto';
 import {RegisterUserUseCase} from 'src/application/auth/use-cases/register-user.use-case';
+import {admin} from 'src/shared/firebase-admin'; // 👈 tu instancia firebase-admin
+import {PrismaClient} from '@prisma/client'; // 👈 o tu servicio UsersService
 
 @Controller('auth')
 export class AuthController {
+  private prisma = new PrismaClient(); // ⚠️ mejor inyectar UsersService en producción
+
   constructor(
     private readonly firebaseAuthProvider: FirebaseAuthProvider,
     private readonly registerUser: RegisterUserUseCase
@@ -45,7 +53,6 @@ export class AuthController {
         `${nombre} ${apellido}`
       );
 
-      // ✅ Validación inmediata para evitar null/undefined
       if (!uid) {
         throw new BadRequestException('Firebase no devolvió un UID válido.');
       }
@@ -59,9 +66,7 @@ export class AuthController {
     }
 
     try {
-      // Asignar rol
       await this.firebaseAuthProvider.setRole(uid, role, nombre, apellido);
-      // Esperar propagación de customClaims
       await new Promise(res => setTimeout(res, 1000));
 
       const actualRole = await this.firebaseAuthProvider.getRole(uid);
@@ -71,7 +76,6 @@ export class AuthController {
         );
       }
 
-      // Lógica de dominio: registro en tu base de datos
       await this.registerUser.execute(
         email,
         password,
@@ -85,11 +89,15 @@ export class AuthController {
         uid
       );
 
-      // Si es un registro público → devolver también customToken
       if (isPublicRegistration === true) {
         const customToken =
           await this.firebaseAuthProvider.generateCustomToken(uid);
-        return {success: true, uid, role: actualRole ?? '', token: customToken};
+        return {
+          success: true,
+          uid,
+          role: actualRole ?? '',
+          token: customToken
+        };
       }
 
       return {success: true, uid, role: actualRole ?? ''};
@@ -98,6 +106,46 @@ export class AuthController {
       throw new BadRequestException(
         error?.message || 'Error al registrar el usuario.'
       );
+    }
+  }
+
+  // 👇 Nuevo endpoint para validar el JWT y revisar si existe en la BD
+  @Get('verify')
+  async verify(@Req() req: Request) {
+    const authHeader = req.headers['authorization'];
+    if (!authHeader) {
+      throw new UnauthorizedException('Token no proporcionado');
+    }
+
+    const token = authHeader.split(' ')[1]; // "Bearer <token>"
+
+    try {
+      // ✅ Validar token con Firebase
+      const decoded = await admin.auth().verifyIdToken(token);
+
+      console.log('[AuthController] decoded token:', decoded);
+
+      // ✅ Buscar usuario en BD por correo
+      const user = await this.prisma.usuario.findUnique({
+        where: {correo: decoded.email}
+      });
+
+      if (!user) {
+        throw new UnauthorizedException(
+          'Usuarioss no encontrado en la base de datos'
+        );
+      }
+
+      return {
+        success: true,
+        user: {
+          correo: user.correo,
+          role: user.id_rol
+        }
+      };
+    } catch (error) {
+      console.error('[AuthController] Error en verify:', error);
+      throw new UnauthorizedException('Token inválido o expirado');
     }
   }
 }
