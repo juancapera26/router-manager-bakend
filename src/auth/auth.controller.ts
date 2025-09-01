@@ -1,7 +1,6 @@
 // auth.controller.ts
-import { Body, Controller, Post, HttpCode } from '@nestjs/common';
-import { AuthService } from './auth.service';
-
+import {Body, Controller, Post, HttpCode} from '@nestjs/common';
+import {AuthService} from './auth.service';
 
 export class ResetPasswordDto {
   email: string;

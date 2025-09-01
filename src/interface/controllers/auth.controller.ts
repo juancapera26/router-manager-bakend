@@ -6,7 +6,6 @@ import {
   ConflictException,
   BadRequestException,
   Req,
-  UnauthorizedException,
   Get
 } from '@nestjs/common';
 import {Request} from 'express';
@@ -114,7 +113,10 @@ export class AuthController {
   async verify(@Req() req: Request) {
     const authHeader = req.headers['authorization'];
     if (!authHeader) {
-      throw new UnauthorizedException('Token no proporcionado');
+      return {
+        success: false,
+        message: 'Token no proporcionado'
+      };
     }
 
     const token = authHeader.split(' ')[1]; // "Bearer <token>"
@@ -131,21 +133,26 @@ export class AuthController {
       });
 
       if (!user) {
-        throw new UnauthorizedException(
-          'Usuarioss no encontrado en la base de datos'
-        );
+        return {
+          success: false,
+          message: 'Usuario no encontrado en la base de datos'
+        };
       }
 
       return {
         success: true,
-        user: {
+        message: 'Token válido',
+        data: {
           correo: user.correo,
           role: user.id_rol
         }
       };
     } catch (error) {
       console.error('[AuthController] Error en verify:', error);
-      throw new UnauthorizedException('Token inválido o expirado');
+      return {
+        success: false,
+        message: 'Token inválido o expirado'
+      };
     }
   }
 }
