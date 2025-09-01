@@ -83,7 +83,7 @@ model usuario {
   id_rol         Int         @db.UnsignedInt
   tipo_documento String?     @db.VarChar(30)
   documento      String?     @db.VarChar(30)
-  uid            String      @unique(map: "uq_uid") @db.VarChar(50)
+  uid            String      @unique(map: "uid") @db.VarChar(50)
   estado         String      @default("activo") @db.VarChar(30)
   novedades      novedades[]
   ruta           ruta[]
