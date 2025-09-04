@@ -2,6 +2,11 @@ import {NestFactory} from '@nestjs/core';
 import {AppModule} from './app.module';
 
 async function bootstrap() {
+  // 👇 Ajustar DATABASE_URL dinámicamente
+  if (process.env.NODE_ENV === 'production' && process.env.DATABASE_URL_PROD) {
+    process.env.DATABASE_URL = process.env.DATABASE_URL_PROD;
+  }
+
   const app = await NestFactory.create(AppModule);
 
   // ✅ Habilitar CORS para local y producción
