@@ -2,18 +2,14 @@ import {NestFactory} from '@nestjs/core';
 import {AppModule} from './app.module';
 
 async function bootstrap() {
-  // 👇 Ajustar DATABASE_URL dinámicamente
-  if (process.env.NODE_ENV === 'production' && process.env.DATABASE_URL_PROD) {
-    process.env.DATABASE_URL = process.env.DATABASE_URL_PROD;
-  }
-
   const app = await NestFactory.create(AppModule);
 
   // ✅ Habilitar CORS para local y producción
   app.enableCors({
     origin: [
       'http://localhost:5173', // Frontend local (Vite)
-      'https://route-manager.vercel.app' // Deploy en Vercel
+      'https://route-manager.vercel.app',
+      'https://7774a93b263b.ngrok-free.app'
     ],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     allowedHeaders: 'Content-Type, Authorization',
