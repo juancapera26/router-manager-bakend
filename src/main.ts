@@ -8,7 +8,8 @@ async function bootstrap() {
   app.enableCors({
     origin: [
       'http://localhost:5173', // Frontend local (Vite)
-      'https://route-manager.vercel.app' // Deploy en Vercel
+      'https://route-manager.vercel.app',
+      'https://7774a93b263b.ngrok-free.app'
     ],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     allowedHeaders: 'Content-Type, Authorization',
