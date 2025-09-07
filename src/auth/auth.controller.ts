@@ -1,3 +1,4 @@
+
 import {
   Body,
   Controller,
@@ -18,6 +19,20 @@ export class ResetPasswordDto {
 
 export class ForgotPasswordDto {
   email: string;
+}
+
+// DTO de registro
+export class RegisterDto {
+  email: string;
+  password: string;
+  role: string;
+  isPublicRegistration: boolean;
+  nombre: string;
+  apellido: string;
+  telefono_movil: string;
+  id_empresa: string;
+  tipo_documento: string;
+  documento: string;
 }
 
 @Controller('auth')
@@ -61,6 +76,7 @@ export class AuthController {
       user
     };
   }
+
 
   @Post('password/forgot')
   @HttpCode(200)
