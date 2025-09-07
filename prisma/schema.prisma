@@ -73,32 +73,33 @@ model ruta {
 }
 
 model usuario {
-  id_usuario     Int         @id @default(autoincrement()) @db.UnsignedInt
-  correo         String      @unique(map: "uq_correo") @db.VarChar(255)
-  contrasena     String      @db.VarChar(100)
-  nombre         String      @db.VarChar(100)
-  apellido       String      @db.VarChar(100)
-  id_empresa     Int         @db.UnsignedInt
-  telefono_movil String?     @db.VarChar(30)
-  id_rol         Int         @db.UnsignedInt
-  tipo_documento String?     @db.VarChar(30)
-  documento      String?     @db.VarChar(30)
-  uid            String      @unique(map: "uq_uid") @db.VarChar(50)
-  estado         String      @default("activo") @db.VarChar(30)
+  id_usuario     Int            @id @default(autoincrement()) @db.UnsignedInt
+  correo         String         @unique(map: "uq_correo") @db.VarChar(255)
+  contrasena     String         @db.VarChar(100)
+  nombre         String         @db.VarChar(100)
+  apellido       String         @db.VarChar(100)
+  id_empresa     Int            @db.UnsignedInt
+  telefono_movil String?        @db.VarChar(30)
+  id_rol         Int            @db.UnsignedInt
+  tipo_documento String?        @db.VarChar(30)
+  documento      String?        @db.VarChar(30)
+  uid            String         @unique(map: "uid") @db.VarChar(50)
+  estado         usuario_estado @default(activo)
+  fecha_registro DateTime       @default(now()) @db.DateTime(0)
   novedades      novedades[]
   ruta           ruta[]
-  empresa        empresa     @relation(fields: [id_empresa], references: [id_empresa], map: "usuario_ibfk_1")
-  rol            rol         @relation(fields: [id_rol], references: [id_rol], map: "usuario_ibfk_2")
+  empresa        empresa        @relation(fields: [id_empresa], references: [id_empresa], map: "usuario_ibfk_1")
+  rol            rol            @relation(fields: [id_rol], references: [id_rol], map: "usuario_ibfk_2")
 
   @@index([id_empresa], map: "idx_usuario_id_empresa")
   @@index([id_rol], map: "idx_usuario_id_rol")
 }
 
 model vehiculo {
-  id_vehiculo Int    @id @default(autoincrement()) @db.UnsignedInt
-  placa       String @db.VarChar(30)
-  tipo        String @db.VarChar(30)
-  id_usuario  Int    @db.UnsignedInt
+  id_vehiculo Int           @id @default(autoincrement()) @db.UnsignedInt
+  placa       String        @db.VarChar(30)
+  tipo        vehiculo_tipo @default(moto)
+  id_usuario  Int           @db.UnsignedInt
   ruta        ruta[]
 }
 
@@ -149,4 +150,16 @@ enum paquete_tipo_paquete {
   peque_o     @map("pequeño")
   refrigerado
   fragil
+}
+
+enum vehiculo_tipo {
+  camioneta
+  moto
+  furgon
+  camion
+}
+
+enum usuario_estado {
+  activo
+  inactivo
 }

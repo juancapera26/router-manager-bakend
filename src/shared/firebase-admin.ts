@@ -1,3 +1,4 @@
+// src/shared/firebase-admin.ts
 import * as admin from 'firebase-admin';
 import { readFileSync } from 'fs';
 import { join } from 'path';
