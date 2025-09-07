@@ -1,5 +1,3 @@
-//auth.module.ts
-
 // auth.module.ts
 import { Module } from '@nestjs/common';
 import { AuthController } from './auth.controller'; // ⚠️ la ruta correcta

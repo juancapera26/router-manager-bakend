@@ -7,6 +7,7 @@ import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { readFileSync } from 'fs';
 import { join } from 'path';
+import { RegisterDto } from './auth.controller'; // 👈 ya sirve para register
 
 @Injectable()
 export class AuthService {
@@ -17,13 +18,53 @@ export class AuthService {
     const serviceAccountPath = this.config.get<string>('FIREBASE_SERVICE_ACCOUNT_PATH');
 
     if (!admin.apps.length) {
-const serviceAccountPath = this.config.get<string>('FIREBASE_SERVICE_ACCOUNT_PATH');
-if (!serviceAccountPath) throw new Error('FIREBASE_SERVICE_ACCOUNT_PATH no definido en .env');
-const serviceAccount = JSON.parse(readFileSync(join(process.cwd(), serviceAccountPath), 'utf-8'));
+      if (!serviceAccountPath) throw new Error('FIREBASE_SERVICE_ACCOUNT_PATH no definido en .env');
+      const serviceAccount = JSON.parse(readFileSync(join(process.cwd(), serviceAccountPath), 'utf-8'));
       admin.initializeApp({
         credential: admin.credential.cert(serviceAccount),
         databaseURL: this.config.get<string>('FIREBASE_DATABASE_URL'),
       });
+    }
+  }
+
+  // 🔹 Registro de usuario (Firebase + MySQL)
+  async register(dto: RegisterDto) {
+    try {
+      // 1. Crear usuario en Firebase
+      const userRecord = await admin.auth().createUser({
+        email: dto.email,
+        password: dto.password,
+        displayName: `${dto.nombre} ${dto.apellido}`,
+      });
+
+      // 2. Hashear contraseña para DB local
+      const hashedPassword = await bcrypt.hash(dto.password, 10);
+
+      // 3. Guardar en MySQL con Prisma
+      const usuario = await this.prisma.usuario.create({
+  data: {
+    correo: dto.email,
+    contrasena: hashedPassword,
+    id_rol: parseInt(dto.role), // 👈 casteo a número
+    nombre: dto.nombre,
+    apellido: dto.apellido,
+    telefono_movil: dto.telefono_movil,
+    id_empresa: parseInt(dto.id_empresa), 
+    tipo_documento: dto.tipo_documento,
+    documento: dto.documento,
+    uid: userRecord.uid, 
+  },
+});
+
+
+      return {
+        message: 'Usuario registrado exitosamente',
+        firebaseUid: userRecord.uid,
+        usuario,
+      };
+    } catch (error) {
+      this.logger.error('Error registrando usuario:', error);
+      throw new BadRequestException('No se pudo registrar el usuario');
     }
   }
 
