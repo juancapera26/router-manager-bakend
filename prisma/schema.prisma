@@ -41,6 +41,8 @@ model paquete {
   fecha_recibido DateTime               @db.Date
   direccion      String                 @db.VarChar(100)
   tipo_paquete   paquete_tipo_paquete
+  lat            Decimal?               @db.Decimal(10, 8)
+  lng            Decimal?               @db.Decimal(11, 8)
   cliente        cliente                @relation(fields: [id_cliente], references: [id_cliente], map: "paquete_ibfk_1")
   ruta           ruta?                  @relation(fields: [id_ruta], references: [id_ruta], map: "paquete_ibfk_2")
   barrio         barrio?                @relation(fields: [id_barrio], references: [id_barrio], map: "paquete_ibfk_3")
@@ -120,12 +122,13 @@ model localidad {
 }
 
 model novedades {
-  id_novedad  Int      @id @default(autoincrement()) @db.UnsignedInt
-  descripcion String   @db.VarChar(100)
-  tipo        String   @db.VarChar(30)
-  fecha       DateTime @db.Date
-  id_usuario  Int      @db.UnsignedInt
-  usuario     usuario  @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade, map: "novedad_ibfk_1")
+  id_novedad  Int            @id @default(autoincrement()) @db.UnsignedInt
+  descripcion String         @db.VarChar(100)
+  tipo        novedades_tipo
+  fecha       DateTime       @db.Date
+  id_usuario  Int            @db.UnsignedInt
+  imagen      String?        @db.VarChar(255)
+  usuario     usuario        @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade, map: "novedad_ibfk_1")
 
   @@index([id_usuario], map: "idx_novedades_id_usuario")
 }
@@ -162,4 +165,9 @@ enum vehiculo_tipo {
 enum usuario_estado {
   activo
   inactivo
+}
+
+enum novedades_tipo {
+  Logística @map("Logística")
+  Operativa
 }

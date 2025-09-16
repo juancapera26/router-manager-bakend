@@ -1,4 +1,3 @@
-
 import {
   Body,
   Controller,
@@ -76,7 +75,6 @@ export class AuthController {
       user
     };
   }
-
 
   @Post('password/forgot')
   @HttpCode(200)

@@ -1,5 +1,5 @@
-import { Controller, Get, Post, Put, Delete, Body, Param } from '@nestjs/common';
-import { PaquetesService } from './paquetes.service';
+import {Controller, Get, Post, Put, Delete, Body, Param} from '@nestjs/common';
+import {PaquetesService} from './paquetes.service';
 
 @Controller('paquetes')
 export class PaquetesController {
