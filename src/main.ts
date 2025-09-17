@@ -11,14 +11,13 @@ async function bootstrap() {
 
   // 🔓 Configurar CORS
   app.enableCors({
-    origin: true,
-    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true,
-    preflightContinue: false,
-    optionsSuccessStatus: 204
+    origin: [
+      'https://route-manager.vercel.app', // Producción
+      'http://localhost:5174' // Desarrollo local
+    ],
+    credentials: true // 👈 Si usas cookies, sesiones o headers personalizados
   });
 
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(3000);
 }
 bootstrap();
