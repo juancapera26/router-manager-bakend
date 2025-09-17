@@ -10,13 +10,13 @@ import {
   Req,
   Get
 } from '@nestjs/common';
-import { Request } from 'express';
-import { FirebaseAuthProvider } from 'src/infrastructure/auth/firebase-auth.provider';
-import { RegisterUserDto } from './dto/register-user.dto';
-import { RegisterUserUseCase } from 'src/application/auth/use-cases/register-user.use-case';
-import { admin } from 'src/shared/firebase-admin';
-import { PrismaClient } from '@prisma/client';
-import { MailService } from 'src/mail/mail.service';
+import {Request} from 'express';
+import {FirebaseAuthProvider} from 'src/infrastructure/auth/firebase-auth.provider';
+import {RegisterUserDto} from './dto/register-user.dto';
+import {RegisterUserUseCase} from 'src/application/auth/use-cases/register-user.use-case';
+import {admin} from 'src/shared/firebase-admin';
+import {PrismaClient} from '@prisma/client';
+import {MailService} from 'src/mail/mail.service';
 
 @Controller('auth')
 export class AuthController {
@@ -35,8 +35,8 @@ export class AuthController {
   async register(
     @Body() body: RegisterUserDto
   ): Promise<
-    | { success: true; uid: string; token: string; role: string }
-    | { success: true; uid: string; role: string }
+    | {success: true; uid: string; token: string; role: string}
+    | {success: true; uid: string; role: string}
   > {
     const {
       email,
@@ -89,13 +89,15 @@ export class AuthController {
       if (isPublicRegistration === true) {
         const customToken =
           await this.firebaseAuthProvider.generateCustomToken(uid);
-        return { success: true, uid, role: actualRole ?? '', token: customToken };
+        return {success: true, uid, role: actualRole ?? '', token: customToken};
       }
 
-      return { success: true, uid, role: actualRole ?? '' };
+      return {success: true, uid, role: actualRole ?? ''};
     } catch (error: any) {
       console.error('[AuthController] Error en register:', error);
-      throw new BadRequestException(error?.message || 'Error al registrar el usuario.');
+      throw new BadRequestException(
+        error?.message || 'Error al registrar el usuario.'
+      );
     }
   }
 
@@ -104,15 +106,20 @@ export class AuthController {
   // =============================
   @Post('login')
   @HttpCode(200)
-  async login(@Body() body: { email: string; password: string }) {
+  async login(@Body() body: {email: string; password: string}) {
     try {
-      const user = await admin.auth().getUserByEmail(body.email).catch(() => null);
+      const user = await admin
+        .auth()
+        .getUserByEmail(body.email)
+        .catch(() => null);
       if (!user) throw new UnauthorizedException('Usuario no encontrado');
 
       // ⚠️ En Firebase Auth la validación real de contraseña se hace en el cliente (front)
-      const token = await this.firebaseAuthProvider.generateCustomToken(user.uid);
+      const token = await this.firebaseAuthProvider.generateCustomToken(
+        user.uid
+      );
 
-      return { success: true, token, uid: user.uid, email: user.email };
+      return {success: true, token, uid: user.uid, email: user.email};
     } catch (error: any) {
       throw new UnauthorizedException(error?.message || 'Error en login');
     }
@@ -122,16 +129,18 @@ export class AuthController {
   // Forgot Password (enviar correo)
   // =============================
   @Post('forgot-password')
-  async forgotPassword(@Body() body: { email: string }) {
+  async forgotPassword(@Body() body: {email: string}) {
     try {
       const link = await admin.auth().generatePasswordResetLink(body.email);
 
       // 🔥 Aquí deberías enviar el link por correo con tu servicio de email (SendGrid, Nodemailer, etc.)
       await this.mailService.sendPasswordResetEmail(body.email, link);
 
-      return { success: true, message: 'Correo de recuperación enviado'};
+      return {success: true, message: 'Correo de recuperación enviado'};
     } catch (error: any) {
-      throw new BadRequestException(error?.message || 'Error al enviar correo de recuperación.');
+      throw new BadRequestException(
+        error?.message || 'Error al enviar correo de recuperación.'
+      );
     }
   }
 
@@ -139,16 +148,18 @@ export class AuthController {
   // Reset Password (cambiar contraseña)
   // =============================
   @Post('reset-password')
-  async resetPassword(@Body() body: { email: string; newPassword: string }) {
+  async resetPassword(@Body() body: {email: string; newPassword: string}) {
     try {
       const user = await admin.auth().getUserByEmail(body.email);
       if (!user) throw new BadRequestException('Usuario no encontrado');
 
-      await admin.auth().updateUser(user.uid, { password: body.newPassword });
+      await admin.auth().updateUser(user.uid, {password: body.newPassword});
 
-      return { success: true, message: 'Contraseña actualizada correctamente' };
+      return {success: true, message: 'Contraseña actualizada correctamente'};
     } catch (error: any) {
-      throw new BadRequestException(error?.message || 'Error al cambiar contraseña.');
+      throw new BadRequestException(
+        error?.message || 'Error al cambiar contraseña.'
+      );
     }
   }
 
@@ -158,25 +169,29 @@ export class AuthController {
   @Get('verify')
   async verify(@Req() req: Request) {
     const authHeader = req.headers['authorization'];
-    if (!authHeader) return { success: false, message: 'Token no proporcionado' };
+    if (!authHeader) return {success: false, message: 'Token no proporcionado'};
 
     const token = authHeader.split(' ')[1];
     try {
       const decoded = await admin.auth().verifyIdToken(token);
 
       const user = await this.prisma.usuario.findUnique({
-        where: { correo: decoded.email }
+        where: {correo: decoded.email}
       });
-      if (!user) return { success: false, message: 'Usuario no encontrado en la base de datos' };
+      if (!user)
+        return {
+          success: false,
+          message: 'Usuario no encontrado en la base de datos'
+        };
 
       return {
         success: true,
         message: 'Token válido',
-        data: { correo: user.correo, role: user.id_rol }
+        data: {correo: user.correo, role: user.id_rol}
       };
     } catch (error) {
       console.error('[AuthController] Error en verify:', error);
-      return { success: false, message: 'Token inválido o expirado' };
+      return {success: false, message: 'Token inválido o expirado'};
     }
   }
 }

@@ -8,7 +8,7 @@ import * as bcrypt from 'bcrypt';
 
 import {readFileSync} from 'fs';
 import {join} from 'path';
-import { RegisterUserDto } from '../interface/controllers/dto/register-user.dto';
+import {RegisterUserDto} from '../interface/controllers/dto/register-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -22,7 +22,6 @@ export class AuthService {
     //const serviceAccountPath = this.config.get<string>('FIREBASE_SERVICE_ACCOUNT_PATH');
 
     if (!admin.apps.length) {
-
       const serviceAccountPath = this.config.get<string>(
         'FIREBASE_SERVICE_ACCOUNT_PATH'
       );
@@ -45,7 +44,7 @@ export class AuthService {
       const userRecord = await admin.auth().createUser({
         email: dto.email,
         password: dto.password,
-        displayName: `${dto.nombre} ${dto.apellido}`,
+        displayName: `${dto.nombre} ${dto.apellido}`
       });
 
       // 2. Hashear contraseña para DB local
@@ -53,25 +52,24 @@ export class AuthService {
 
       // 3. Guardar en MySQL con Prisma
       const usuario = await this.prisma.usuario.create({
-  data: {
-    correo: dto.email,
-    contrasena: hashedPassword,
-    id_rol: parseInt(dto.role), // 👈 casteo a número
-    nombre: dto.nombre,
-    apellido: dto.apellido,
-    telefono_movil: dto.telefono_movil,
-    id_empresa: parseInt(dto.id_empresa), 
-    tipo_documento: dto.tipo_documento,
-    documento: dto.documento,
-    uid: userRecord.uid, 
-  },
-});
-
+        data: {
+          correo: dto.email,
+          contrasena: hashedPassword,
+          id_rol: parseInt(dto.role), // 👈 casteo a número
+          nombre: dto.nombre,
+          apellido: dto.apellido,
+          telefono_movil: dto.telefono_movil,
+          id_empresa: parseInt(dto.id_empresa),
+          tipo_documento: dto.tipo_documento,
+          documento: dto.documento,
+          uid: userRecord.uid
+        }
+      });
 
       return {
         message: 'Usuario registrado exitosamente',
         firebaseUid: userRecord.uid,
-        usuario,
+        usuario
       };
     } catch (error) {
       this.logger.error('Error registrando usuario:', error);
