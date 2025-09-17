@@ -13,6 +13,7 @@ export class MailService {
       host: this.config.get<string>('SMTP_HOST'),
       port: this.config.get<number>('SMTP_PORT') ?? 587,
       secure: false,
+      service: 'gmail',
       auth: {
         user: this.config.get<string>('SMTP_USER'),
         pass: this.config.get<string>('SMTP_PASS'),
@@ -31,7 +32,17 @@ export class MailService {
       <p>Si no solicitaste esto ignora el mensaje.</p>
     `;
 
-    await this.transporter.sendMail({ from: this.from, to, subject: 'Restablecer contraseña', html });
+    await this.transporter.sendMail({ 
+    from: this.from,
+    to,
+    subject: 'Restablecer contraseña', html }
+  ),(err, info) => {
+    if (err) {
+      this.logger.error('Error al enviar email', err);
+    } else {
+      this.logger.log('Respuesta del servidor SMTP: '+ info.resonse);
+    }
+  }
     this.logger.log(`Reset email enviado a ${to}`);
   }
 }

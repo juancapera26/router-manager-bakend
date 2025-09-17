@@ -1,7 +1,6 @@
 import {Injectable} from '@nestjs/common';
 import {PrismaService} from './prisma.service';
 import {Paquete} from 'src/domain/manifests/entities/paquete.entity';
-import Decimal from 'decimal.js';
 
 @Injectable()
 export class PrismaManifestRepository {
@@ -10,7 +9,9 @@ export class PrismaManifestRepository {
   async getPaquetesPorManifiesto(codigo: string): Promise<Paquete[]> {
     const paquetes = await this.prisma.paquete.findMany({
       where: {
-        ruta: {cod_manifiesto: codigo}
+        ruta: {
+          cod_manifiesto: codigo // busca paquetes cuya ruta tiene ese código de manifiesto
+        }
       },
       select: {
         codigo_rastreo: true,
@@ -20,20 +21,10 @@ export class PrismaManifestRepository {
         alto: true,
         peso: true,
         estado_paquete: true,
-        tipo_paquete: true,
-        lat: true,
-        lng: true
+        tipo_paquete: true
       }
     });
 
-    // Convertir Decimal a number
-    return paquetes.map(
-      p =>
-        new Paquete({
-          ...p,
-          lat: p.lat ? (p.lat as Decimal).toNumber() : undefined,
-          lng: p.lng ? (p.lng as Decimal).toNumber() : undefined
-        })
-    );
+    return paquetes as Paquete[];
   }
 }
