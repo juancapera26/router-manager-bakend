@@ -1,5 +1,8 @@
-import {Controller, Get, Post, Put, Delete, Body, Param} from '@nestjs/common';
-import {PaquetesService} from './paquetes.service';
+// paquetes.controller.ts
+import { Controller, Get, Post, Put, Delete, Body, Param } from '@nestjs/common';
+import { PaquetesService } from './paquetes.service';
+import { CreatePaqueteDto } from './dto/create-paquete.dto';
+import { UpdatePaqueteDto } from './dto/update-paquete.dto';
 
 @Controller('paquetes')
 export class PaquetesController {
@@ -16,15 +19,13 @@ export class PaquetesController {
   }
 
   @Post()
-  create(@Body() data: any) {
-    return this.paquetesService.create(data);
+  create(@Body() dto: CreatePaqueteDto) {
+    return this.paquetesService.create(dto);
   }
-
   @Put(':id')
-  update(@Param('id') id: string, @Body() data: any) {
-    return this.paquetesService.update(Number(id), data);
+  update(@Param('id') id: string, @Body() dto: UpdatePaqueteDto) {
+    return this.paquetesService.update(Number(id), dto);
   }
-
   @Delete(':id')
   delete(@Param('id') id: string) {
     return this.paquetesService.delete(Number(id));
