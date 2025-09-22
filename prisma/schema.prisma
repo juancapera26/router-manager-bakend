@@ -168,6 +168,6 @@ enum usuario_estado {
 }
 
 enum novedades_tipo {
-  Logística @map("Logística")
+    Logística @map("Logística")
   Operativa
 }
