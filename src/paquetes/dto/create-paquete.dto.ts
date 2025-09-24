@@ -1,23 +1,16 @@
-//create-paquete.dto.ts
-import { IsString, IsNumber, IsOptional, IsDateString, IsEnum } from 'class-validator';
-import { paquete_estado_paquete, paquete_tipo_paquete } from '@prisma/client';
+import {
+  IsString,
+  IsNumber,
+  IsOptional,
+  IsDateString,
+  IsEnum
+} from 'class-validator';
+import {paquete_tipo_paquete} from '@prisma/client';
 
 export class CreatePaqueteDto {
   @IsOptional()
-  @IsDateString()
-  fecha_entrega?: Date;
-
-  @IsOptional()
-  @IsEnum(paquete_estado_paquete)
-  estado_paquete?: paquete_estado_paquete;
-
-  @IsOptional()
   @IsString()
   codigo_rastreo?: string;
-
-  @IsOptional()
-  @IsString()
-  estado_entrega?: string;
 
   @IsNumber()
   largo: number;
@@ -42,12 +35,26 @@ export class CreatePaqueteDto {
   @IsNumber()
   id_barrio?: number;
 
-  @IsDateString()
-  fecha_recibido: Date;
-
+  @IsOptional()
   @IsString()
-  direccion: string;
+  direccion_entrega?: string;
 
   @IsEnum(paquete_tipo_paquete)
   tipo_paquete: paquete_tipo_paquete;
+
+  @IsOptional()
+  lat?: number;
+
+  @IsOptional()
+  lng?: number;
+
+  @IsNumber()
+  valor_declarado: number;
+
+  @IsNumber()
+  cantidad: number;
+
+  @IsOptional()
+  @IsDateString()
+  fecha_entrega?: Date;
 }
