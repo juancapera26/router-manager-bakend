@@ -1,13 +1,16 @@
 // paquetes.service.ts
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'prisma/prima.service';
 import { CreatePaqueteDto } from './dto/create-paquete.dto';
 import { UpdatePaqueteDto } from './dto/update-paquete.dto';
+import { AsignarPaqueteDto } from './dto/asignar-paquete.dto';
+import { EstadoPaqueteDto } from './dto/estado-paquete.dto';
 
 @Injectable()
 export class PaquetesService {
   constructor(private prisma: PrismaService) {}
 
+  // 🔹 CRUD básico
   getAll() {
     return this.prisma.paquete.findMany();
   }
@@ -20,13 +23,56 @@ export class PaquetesService {
     return this.prisma.paquete.create({ data });
   }
 
-   update(id: number, data: UpdatePaqueteDto) {
+  update(id: number, data: UpdatePaqueteDto) {
     return this.prisma.paquete.update({
       where: { id_paquete: id },
       data,
     });
   }
+
   delete(id: number) {
     return this.prisma.paquete.delete({ where: { id_paquete: id } });
+  }
+
+  // 🔹 Operaciones adicionales
+  async asignar(id: number, dto: AsignarPaqueteDto) {
+    const paquete = await this.prisma.paquete.findUnique({ where: { id_paquete: id } });
+    if (!paquete) throw new NotFoundException('Paquete no encontrado');
+
+    return this.prisma.paquete.update({
+      where: { id_paquete: id },
+      data: {
+        id_ruta: dto.id_ruta,
+        estado_paquete: 'asignado',
+      },
+    });
+  }
+
+  async reasignar(id: number, dto: AsignarPaqueteDto) {
+    return this.asignar(id, dto);
+  }
+
+  async cancelar(id: number) {
+    const paquete = await this.prisma.paquete.findUnique({ where: { id_paquete: id } });
+    if (!paquete) throw new NotFoundException('Paquete no encontrado');
+
+    return this.prisma.paquete.update({
+      where: { id_paquete: id },
+      data: { estado_paquete: 'fallido' },
+    });
+  }
+
+  async cambiarEstado(id: number, dto: EstadoPaqueteDto) {
+    const paquete = await this.prisma.paquete.findUnique({ where: { id_paquete: id } });
+    if (!paquete) throw new NotFoundException('Paquete no encontrado');
+
+    if (paquete.estado_paquete === 'entregado' && dto.estado !== 'entregado') {
+      throw new BadRequestException('No se puede modificar un paquete ya entregado');
+    }
+
+    return this.prisma.paquete.update({
+      where: { id_paquete: id },
+      data: { estado_paquete: dto.estado },
+    });
   }
 }
