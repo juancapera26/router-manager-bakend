@@ -89,7 +89,12 @@ export class AuthController {
       if (isPublicRegistration === true) {
         const customToken =
           await this.firebaseAuthProvider.generateCustomToken(uid);
-        return {success: true, uid, role: actualRole ?? '', token: customToken};
+        return {
+          success: true,
+          uid,
+          role: actualRole ?? '',
+          token: customToken
+        };
       }
 
       return {success: true, uid, role: actualRole ?? ''};
@@ -133,7 +138,7 @@ export class AuthController {
     try {
       const link = await admin.auth().generatePasswordResetLink(body.email);
 
-      // 🔥 Aquí deberías enviar el link por correo con tu servicio de email (SendGrid, Nodemailer, etc.)
+      // 🔥 Enviar el link por correo con tu servicio de email
       await this.mailService.sendPasswordResetEmail(body.email, link);
 
       return {success: true, message: 'Correo de recuperación enviado'};
@@ -176,18 +181,33 @@ export class AuthController {
       const decoded = await admin.auth().verifyIdToken(token);
 
       const user = await this.prisma.usuario.findUnique({
-        where: {correo: decoded.email}
+        where: {correo: decoded.email},
+        include: {
+          empresa: true // ✅ solo incluimos empresa
+        }
       });
-      if (!user)
+
+      if (!user) {
         return {
           success: false,
           message: 'Usuario no encontrado en la base de datos'
         };
+      }
 
       return {
         success: true,
         message: 'Token válido',
-        data: {correo: user.correo, role: user.id_rol}
+        data: {
+          uid: decoded.uid,
+          correo: user.correo,
+          role: user.id_rol, // ✅ devolvemos el id del rol (número)
+          nombre: user.nombre,
+          apellido: user.apellido,
+          telefono_movil: user.telefono_movil,
+          documento: user.documento,
+          tipo_documento: user.tipo_documento,
+          empresa: user.empresa?.nombre_empresa || null // ✅ devolvemos el nombre de la empresa
+        }
       };
     } catch (error) {
       console.error('[AuthController] Error en verify:', error);

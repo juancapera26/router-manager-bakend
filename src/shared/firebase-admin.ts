@@ -1,7 +1,7 @@
 // src/shared/firebase-admin.ts
 import * as admin from 'firebase-admin';
-import { readFileSync } from 'fs';
-import { join } from 'path';
+import {readFileSync} from 'fs';
+import {join} from 'path';
 
 const serviceAccountPath = join(
   process.cwd(),
@@ -12,7 +12,7 @@ const serviceAccountPath = join(
 admin.initializeApp({
   credential: admin.credential.cert(
     JSON.parse(readFileSync(serviceAccountPath, 'utf8'))
-  ),
+  )
 });
 
-export { admin };
+export {admin};

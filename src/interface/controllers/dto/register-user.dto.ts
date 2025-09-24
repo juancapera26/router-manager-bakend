@@ -1,5 +1,12 @@
 // src/application/auth/dto/register-user.dto.ts
-import {IsEmail,IsString,MinLength,IsOptional,IsBoolean,IsNumberString} from 'class-validator';
+import {
+  IsEmail,
+  IsString,
+  MinLength,
+  IsOptional,
+  IsBoolean,
+  IsNumberString
+} from 'class-validator';
 export class RegisterUserDto {
   @IsEmail()
   email: string;
