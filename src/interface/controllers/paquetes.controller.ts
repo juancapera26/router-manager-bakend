@@ -34,6 +34,7 @@ export class PaquetesController {
   update(@Param('id') id: string, @Body() dto: UpdatePaqueteDto) {
     return this.paquetesService.update(Number(id), dto);
   }
+  
   @Delete(':id')
   delete(@Param('id') id: string) {
     return this.paquetesService.delete(Number(id));
