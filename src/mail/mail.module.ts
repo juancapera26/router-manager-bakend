@@ -1,11 +1,11 @@
 //mail.module.ts
-import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
-import { MailService } from './mail.service';
+import {Module} from '@nestjs/common';
+import {ConfigModule} from '@nestjs/config';
+import {MailService} from './mail.service';
 
 @Module({
-  imports: [ConfigModule.forRoot({ isGlobal: true })],
+  imports: [ConfigModule.forRoot({isGlobal: true})],
   providers: [MailService],
-  exports: [MailService],
+  exports: [MailService]
 })
 export class MailModule {}

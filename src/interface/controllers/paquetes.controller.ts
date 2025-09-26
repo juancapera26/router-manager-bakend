@@ -8,7 +8,7 @@ import {
   Body,
   Param
 } from '@nestjs/common';
-import {PaquetesService} from './paquetes.service';
+import {PaquetesService} from '../../paquetes/paquetes.service';
 //import {CreatePaqueteDto} from './dto/create-paquete.dto';
 import {UpdatePaqueteDto} from './dto/update-paquete.dto';
 

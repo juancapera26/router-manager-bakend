@@ -1,3 +1,4 @@
+// src/interface/controllers/dto/create-novedad.dto.ts
 import {IsEnum, IsNotEmpty, IsOptional} from 'class-validator';
 import {novedades_tipo} from '@prisma/client'; // 👈 Prisma genera este enum
 
