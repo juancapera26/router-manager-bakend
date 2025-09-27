@@ -1,8 +1,8 @@
 // src/auth/auth.module.ts
 import {Module} from '@nestjs/common';
 import {AuthController} from 'src/interface/controllers/auth.controller';
-import {AuthService} from './auth.service';
-import {MailModule} from '../mail/mail.module';
+import {AuthService} from '../../../auth/auth.service';
+import {MailModule} from '../../../mail/mail.module';
 import {InfrastructureModule} from 'src/infrastructure/infrastructure.module';
 
 // 👉 importa tus dependencias

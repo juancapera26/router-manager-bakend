@@ -1,8 +1,8 @@
 // paquetes.service.ts
 import {Injectable} from '@nestjs/common';
-import {PrismaService} from 'prisma/prima.service';
+import {PrismaService} from 'prisma/prisma.service';
 //import {CreatePaqueteDto} from './dto/create-paquete.dto';
-import {UpdatePaqueteDto} from './dto/update-paquete.dto';
+import {UpdatePaqueteDto} from '../interface/controllers/dto/update-paquete.dto';
 
 @Injectable()
 export class PaquetesService {

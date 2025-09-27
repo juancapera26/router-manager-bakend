@@ -1,11 +1,15 @@
 // src/app.module.ts
 import {Module} from '@nestjs/common';
-import {UsersModule} from './users/users.module';
-import {AuthModule} from './auth/auth.module';
+import {UsersModule} from './interface/controllers/modules/users.module';
+import {AuthModule} from './interface/controllers/modules/auth.module';
 import {MailModule} from './mail/mail.module';
-import {ManifestsModule} from './interface/controllers/manifests.module';
-import {PaquetesModule} from './paquetes/paquetes.module';
-import {NovedadesModule} from './rutas/novedades/novedades.module';
+import {ManifestsModule} from './interface/controllers/modules/manifests.module';
+import {PaquetesModule} from './interface/controllers/modules/paquetes.module';
+import {NovedadesModule} from './interface/controllers/modules/novedades.module';
+// import {CategoriasModule} from './pruebasapi/categorias/categorias.module';
+// import {PedidosModule} from './pruebasapi/pedidos/pedidos.module';
+// import {ProductosModule} from './pruebasapi/productos/productos.module';
+// import {UsuariosModule} from './pruebasapi/usuarios/usuarios.module';
 
 @Module({
   imports: [
@@ -15,6 +19,10 @@ import {NovedadesModule} from './rutas/novedades/novedades.module';
     PaquetesModule,
     ManifestsModule,
     NovedadesModule
+    // UsuariosModule,
+    // ProductosModule,
+    // PedidosModule,
+    // CategoriasModule
   ]
 })
 export class AppModule {}
