@@ -65,11 +65,12 @@ model rol {
 model ruta {
   id_ruta        Int              @id @default(autoincrement()) @db.UnsignedInt
   estado_ruta    ruta_estado_ruta @default(Pendiente)
-  fecha_inicio   DateTime         @db.Date
-  fecha_fin      DateTime?        @db.Date
+  fecha_inicio   DateTime         @db.DateTime(0)
+  fecha_fin      DateTime?        @db.DateTime(0)
   id_conductor   Int              @db.UnsignedInt
   id_vehiculo    Int              @db.UnsignedInt
   cod_manifiesto String           @unique(map: "cod_manifiesto") @db.VarChar(50)
+  fecha_creacion DateTime         @default(now()) @db.DateTime(0)
   paquete        paquete[]
   usuario        usuario          @relation(fields: [id_conductor], references: [id_usuario], map: "ruta_ibfk_1")
   vehiculo       vehiculo         @relation(fields: [id_vehiculo], references: [id_vehiculo], map: "ruta_ibfk_2")
@@ -161,11 +162,6 @@ enum usuario_estado {
   inactivo
 }
 
-enum novedades_tipo {
-    Logística @map("Logística")
-  Operativa
-}
-
 enum estado_conductor_estado {
   Disponible
   En_ruta       @map("En ruta")
@@ -199,4 +195,9 @@ enum paquete_tipo_paquete {
   Pequeno
   Refrigerado
   Fragil
+}
+
+enum novedades_tipo {
+  Log_stica @map("Logística")
+  Operativa
 }
