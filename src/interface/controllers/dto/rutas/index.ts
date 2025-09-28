@@ -8,6 +8,5 @@ export * from './iniciar-ruta.dto';
 export * from './completar-ruta.dto';
 export * from './marcar-fallida.dto';
 export * from './filtrar-rutas.dto';
-export * from './reasignar-ruta.dto';
 export * from './ruta-response.dto';
 export * from './ruta-detalle.dto';
