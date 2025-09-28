@@ -15,7 +15,6 @@ import { ConductoresModule } from './interface/controllers/modules/conductores.m
     UsersModule,
     AuthModule,
     MailModule,
-    PaquetesModule,
     ManifestsModule,
     NovedadesModule,
     ConductoresModule,
