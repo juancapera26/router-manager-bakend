@@ -1,6 +1,6 @@
-import {Injectable} from '@nestjs/common';
-import {CreateNovedadDto} from './dto/create-novedad.dto';
-import {PrismaService} from 'prisma/prima.service';
+import { Injectable, BadRequestException } from '@nestjs/common';
+import { CreateNovedadDto } from './dto/create-novedad.dto';
+import { PrismaService } from '../../../prisma/prima.service';
 
 @Injectable()
 export class NovedadesService {
@@ -11,20 +11,32 @@ export class NovedadesService {
     file?: Express.Multer.File,
     usuarioId?: number
   ) {
-    return this.prisma.novedades.create({
-      data: {
-        descripcion: data.descripcion,
-        tipo: data.tipo,
-        fecha: new Date(),
-        id_usuario: usuarioId ?? 1,
-        imagen: file ? `/uploads/${file.filename}` : (data.imagen ?? null)
-      }
-    });
+    if (!usuarioId) {
+      throw new BadRequestException('ID de usuario es requerido');
+    }
+
+    try {
+      return await this.prisma.novedades.create({
+        data: {
+          descripcion: data.descripcion,
+          tipo: data.tipo,
+          fecha: new Date(),
+          id_usuario: usuarioId,
+          imagen: file ? `/uploads/${file.filename}` : data.imagen
+        }
+      });
+    } catch (error) {
+      throw new BadRequestException(`Error al crear novedad: ${error.message}`);
+    }
   }
 
   async listarNovedades() {
-    return this.prisma.novedades.findMany({
-      include: {usuario: true} // opcional: trae datos del usuario
-    });
+    try {
+      return await this.prisma.novedades.findMany({
+        include: { usuario: true }
+      });
+    } catch (error) {
+      throw new BadRequestException(`Error al listar novedades: ${error.message}`);
+    }
   }
 }

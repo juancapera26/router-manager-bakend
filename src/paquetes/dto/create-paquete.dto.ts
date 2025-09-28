@@ -1,17 +1,7 @@
-import {
-  IsString,
-  IsNumber,
-  IsOptional,
-  IsDateString,
-  IsEnum
-} from 'class-validator';
+import {IsString,IsNumber,IsOptional,IsDateString,IsEnum} from 'class-validator';
 import {paquete_tipo_paquete} from '@prisma/client';
-
+import { CreateClienteDto } from 'src/clientes/dto/create-cliente.dto';
 export class CreatePaqueteDto {
-  @IsOptional()
-  @IsString()
-  codigo_rastreo?: string;
-
   @IsNumber()
   largo: number;
 
@@ -57,4 +47,12 @@ export class CreatePaqueteDto {
   @IsOptional()
   @IsDateString()
   fecha_entrega?: Date;
+
+  @IsOptional()
+  fecha_registro?: Date;
+
+   @IsOptional()
+   @IsString()
+   id_conductor?: number;
+  cliente: CreateClienteDto; 
 }
