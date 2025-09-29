@@ -6,8 +6,8 @@ import {join} from 'path';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // Servir carpeta "uploads"
-  app.use('/uploads', express.static(join(__dirname, '..', '..', 'uploads')));
+  // Servir carpeta "uploads" de forma pública
+  app.use('/uploads', express.static(join(process.cwd(), 'uploads')));
 
   // Habilitar CORS
   app.enableCors({
