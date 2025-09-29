@@ -6,6 +6,7 @@ import {MailModule} from './mail/mail.module';
 import {ManifestsModule} from './interface/controllers/modules/manifests.module';
 import {PaquetesModule} from './interface/controllers/modules/paquetes.module';
 import {NovedadesModule} from './interface/controllers/modules/novedades.module';
+import {ConductoresModule} from './interface/controllers/modules/conductores.module';
 // import {CategoriasModule} from './pruebasapi/categorias/categorias.module';
 // import {PedidosModule} from './pruebasapi/pedidos/pedidos.module';
 // import {ProductosModule} from './pruebasapi/productos/productos.module';
@@ -18,7 +19,8 @@ import {NovedadesModule} from './interface/controllers/modules/novedades.module'
     MailModule,
     PaquetesModule,
     ManifestsModule,
-    NovedadesModule
+    NovedadesModule,
+    ConductoresModule
     // UsuariosModule,
     // ProductosModule,
     // PedidosModule,

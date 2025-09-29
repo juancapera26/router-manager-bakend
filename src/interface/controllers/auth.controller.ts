@@ -200,13 +200,15 @@ export class AuthController {
         data: {
           uid: decoded.uid,
           correo: user.correo,
+          id_usuario: user.id_usuario,
           role: user.id_rol, // ✅ devolvemos el id del rol (número)
           nombre: user.nombre,
           apellido: user.apellido,
           telefono_movil: user.telefono_movil,
           documento: user.documento,
           tipo_documento: user.tipo_documento,
-          empresa: user.empresa?.nombre_empresa || null // ✅ devolvemos el nombre de la empresa
+          empresa: user.empresa?.nombre_empresa || null, // ✅ devolvemos el nombre de la empresa
+          foto_perfil: user.foto_perfil || null // 👈 aquí
         }
       };
     } catch (error) {
