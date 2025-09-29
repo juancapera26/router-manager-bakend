@@ -43,19 +43,28 @@ export class RutaDomainEntity {
     id_conductor: number | null = null,
     id_vehiculo: number | null = null
   ): RutaDomainEntity {
-    const now = new Date();
+    // CORRECCIÓN: Comparar solo fecha sin hora
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    
+    const fechaInicioSinHora = new Date(fecha_inicio);
+    fechaInicioSinHora.setHours(0, 0, 0, 0);
 
     // Validaciones de fechas
-    if (fecha_inicio < now) {
+    if (fechaInicioSinHora < hoy) {
       throw new Error(
         'La fecha de inicio no puede ser anterior a la fecha actual'
       );
     }
+    
     if (fecha_fin && fecha_fin <= fecha_inicio) {
       throw new Error(
         'La fecha de fin debe ser posterior a la fecha de inicio'
       );
     }
+
+    // Generar código de manifiesto si viene con conductor
+    const cod_manifiesto = id_conductor ? RutaDomainEntity.generarCodigoManifiestoStatic() : null;
 
     // Creamos la instancia con valores temporales para ID y fecha de creación
     const ruta = new RutaDomainEntity(
@@ -65,7 +74,7 @@ export class RutaDomainEntity {
       fecha_fin,
       id_conductor,
       id_vehiculo,
-      null, // cod_manifiesto inicialmente null
+      cod_manifiesto,
       new Date(), // fecha_creacion temporal
       [] // paquetes vacíos
     );
@@ -274,6 +283,10 @@ export class RutaDomainEntity {
 
   // Métodos privados
   private generarCodigoManifiesto(): string {
+    return RutaDomainEntity.generarCodigoManifiestoStatic();
+  }
+
+  private static generarCodigoManifiestoStatic(): string {
     const fecha = new Date();
     const year = fecha.getFullYear();
     const month = (fecha.getMonth() + 1).toString().padStart(2, '0');

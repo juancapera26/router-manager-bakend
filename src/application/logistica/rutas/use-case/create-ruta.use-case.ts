@@ -3,7 +3,9 @@ import { Injectable, BadRequestException, NotFoundException } from '@nestjs/comm
 import { Inject } from '@nestjs/common';
 import { CreateRutaDto } from '../../../../interface/controllers/dto/rutas/create-ruta.dto';
 import { RutaRepository } from '../../../../domain/logistica/rutas/repositories/ruta.repository';
-import { RUTA_REPOSITORY_TOKEN } from '../../../../domain/logistica/rutas/tokens/ruta-repository.token'
+import { RUTA_REPOSITORY_TOKEN } from '../../../../domain/logistica/rutas/tokens/ruta-repository.token';
+import { RutaDomainEntity } from '../../../../domain/logistica/rutas/entities/ruta.entity';
+import { RutaDomainMapper } from '../../../../domain/logistica/rutas/mappers/ruta-domain.mapper';
 
 @Injectable()
 export class CreateRutaUseCase {
@@ -14,28 +16,10 @@ export class CreateRutaUseCase {
  
   async execute(createRutaDto: CreateRutaDto) {
     try {
-      // Validar que la fecha de inicio no sea anterior a hoy
       const fechaInicio = new Date(createRutaDto.fecha_inicio);
-      const hoy = new Date();
-      hoy.setHours(0, 0, 0, 0);
+      const fechaFin = createRutaDto.fecha_fin ? new Date(createRutaDto.fecha_fin) : null;
 
-      if (fechaInicio < hoy) {
-        throw new BadRequestException(
-          'La fecha de inicio no puede ser anterior a la fecha actual'
-        );
-      }
-
-      // Validar fecha de fin si se proporciona
-      if (createRutaDto.fecha_fin) {
-        const fechaFin = new Date(createRutaDto.fecha_fin);
-        if (fechaFin <= fechaInicio) {
-          throw new BadRequestException(
-            'La fecha de fin debe ser posterior a la fecha de inicio'
-          );
-        }
-      }
-
-      // Validar que conductor existe y está disponible (si se proporciona)
+      // Validar disponibilidad de recursos (si vienen) - CAPA DE INFRAESTRUCTURA
       if (createRutaDto.id_conductor) {
         const conductorDisponible = await this.rutaRepository.isConductorDisponible(
           createRutaDto.id_conductor
@@ -47,7 +31,6 @@ export class CreateRutaUseCase {
         }
       }
 
-      // Validar que vehículo existe y está disponible (si se proporciona)
       if (createRutaDto.id_vehiculo) {
         const vehiculoDisponible = await this.rutaRepository.isVehiculoDisponible(
           createRutaDto.id_vehiculo
@@ -59,23 +42,32 @@ export class CreateRutaUseCase {
         }
       }
 
-      // Crear la ruta
-      const nuevaRuta = await this.rutaRepository.create({
-        estado_ruta: 'Pendiente', // Siempre inicia como Pendiente
-        fecha_inicio: fechaInicio,
-        fecha_fin: createRutaDto.fecha_fin ? new Date(createRutaDto.fecha_fin) : null,
-        id_conductor: createRutaDto.id_conductor || null,
-        id_vehiculo: createRutaDto.id_vehiculo || null,
-        cod_manifiesto: null, // Se genera cuando se asigna conductor
-      });
+      // CREAR ENTIDAD DE DOMINIO - Todas las validaciones de negocio están aquí
+      const rutaDomainEntity = RutaDomainEntity.crear(
+        fechaInicio,
+        fechaFin,
+        createRutaDto.id_conductor || null,
+        createRutaDto.id_vehiculo || null
+      );
+
+      // MAPEAR a datos de persistencia
+      const createRutaData = RutaDomainMapper.toCreateData(rutaDomainEntity);
+
+      // PERSISTIR
+      const rutaCreada = await this.rutaRepository.create(createRutaData);
 
       return {
         success: true,
         message: 'Ruta creada exitosamente',
-        data: nuevaRuta,
+        data: rutaCreada,
       };
 
     } catch (error) {
+      // Los errores de dominio vienen como Error estándar
+      if (error instanceof Error && !error.message.includes('prisma')) {
+        throw new BadRequestException(error.message);
+      }
+
       if (error instanceof BadRequestException || error instanceof NotFoundException) {
         throw error;
       }
