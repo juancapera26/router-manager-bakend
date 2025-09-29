@@ -38,30 +38,25 @@ export class CreateRutaDto {
   @ApiProperty({
     description: 'ID del conductor asignado',
     example: 1,
-    minimum: 1
+    minimum: 1,
+    required: false
   })
+  @IsOptional()
   @IsInt()
   @Min(1)
   @Transform(({ value }) => parseInt(value))
-  id_conductor: number;
+  id_conductor?: number;
 
   @ApiProperty({
     description: 'ID del vehículo asignado',
     example: 1,
-    minimum: 1
+    minimum: 1,
+    required: false
   })
+
+  @IsOptional()
   @IsInt()
   @Min(1)
   @Transform(({ value }) => parseInt(value))
-  id_vehiculo: number;
-
-  @ApiProperty({
-    description: 'Código del manifiesto (único)',
-    example: 'MAN-2024-001',
-    minLength: 3,
-    maxLength: 50
-  })
-  @IsString()
-  @Length(3, 50)
-  cod_manifiesto: string;
+  id_vehiculo?: number;
 }

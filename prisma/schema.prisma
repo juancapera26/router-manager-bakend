@@ -67,13 +67,13 @@ model ruta {
   estado_ruta    ruta_estado_ruta @default(Pendiente)
   fecha_inicio   DateTime         @db.DateTime(0)
   fecha_fin      DateTime?        @db.DateTime(0)
-  id_conductor   Int              @db.UnsignedInt
-  id_vehiculo    Int              @db.UnsignedInt
-  cod_manifiesto String           @unique(map: "cod_manifiesto") @db.VarChar(50)
+  id_conductor   Int?             @db.UnsignedInt
+  id_vehiculo    Int?             @db.UnsignedInt
+  cod_manifiesto String?          @unique(map: "cod_manifiesto") @db.VarChar(50)
   fecha_creacion DateTime         @default(now()) @db.DateTime(0)
   paquete        paquete[]
-  usuario        usuario          @relation(fields: [id_conductor], references: [id_usuario], map: "ruta_ibfk_1")
-  vehiculo       vehiculo         @relation(fields: [id_vehiculo], references: [id_vehiculo], map: "ruta_ibfk_2")
+  usuario        usuario?         @relation(fields: [id_conductor], references: [id_usuario], map: "ruta_ibfk_1")
+  vehiculo       vehiculo?        @relation(fields: [id_vehiculo], references: [id_vehiculo], map: "ruta_ibfk_2")
 
   @@index([id_conductor], map: "idx_ruta_id_conductor")
   @@index([id_vehiculo], map: "idx_ruta_id_vehiculo")
