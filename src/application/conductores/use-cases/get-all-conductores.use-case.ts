@@ -4,16 +4,13 @@ import {ConductorRepository} from '../../../domain/conductores/repositories/cond
 import {ConductorEntity} from '../../../domain/conductores/entities/conductor.entity';
 
 @Injectable()
-export class UpdateConductorUseCase {
+export class GetAllConductoresUseCase {
   constructor(
     @Inject(ConductorRepositoryToken)
-    private conductorRepo: ConductorRepository
+    private readonly conductorRepo: ConductorRepository
   ) {}
 
-  execute(
-    id: number,
-    data: Partial<ConductorEntity>
-  ): Promise<ConductorEntity> {
-    return this.conductorRepo.update(id, data);
+  execute(): Promise<ConductorEntity[]> {
+    return this.conductorRepo.findAll();
   }
 }
