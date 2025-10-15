@@ -2,13 +2,16 @@
 import {
   BadRequestException,
   ConflictException,
-  Injectable
+  Injectable,
+  Logger
 } from '@nestjs/common';
 import {AuthProvider} from '../../domain/auth/auth.provider';
 import {admin} from '../../shared/firebase-admin';
 
 @Injectable()
 export class FirebaseAuthProvider implements AuthProvider {
+  private readonly logger = new Logger(FirebaseAuthProvider.name);
+
   async createUser(
     email: string,
     password: string,
@@ -30,14 +33,14 @@ export class FirebaseAuthProvider implements AuthProvider {
       if (nombre) claims['nombre'] = nombre;
       if (apellido) claims['apellido'] = apellido;
 
-      console.log(`[setRole] UID: ${uid}, Claims:`, claims);
-      await admin.auth().setCustomUserClaims(uid, claims);
-      console.log(`[setRole] Claims asignados correctamente`);
-    } catch (error: any) {
-      console.error('[setRole] 🔥 Error al asignar claims:', error);
-      throw new Error(
-        `[setRole] Firebase error: ${error.message || error.toString()}`
+      this.logger.log(
+        `[setRole] UID: ${uid}, Claims: ${JSON.stringify(claims)}`
       );
+      await admin.auth().setCustomUserClaims(uid, claims);
+      this.logger.log(`[setRole] Claims asignados correctamente`);
+    } catch (error: any) {
+      this.logger.error('[setRole] 🔥 Error al asignar claims:', error);
+      throw new Error(`[setRole] Firebase error: ${error.message}`);
     }
   }
 
@@ -51,16 +54,13 @@ export class FirebaseAuthProvider implements AuthProvider {
       throw new ConflictException('El correo ya está registrado.');
     } catch (error: any) {
       if (error.code === 'auth/user-not-found') {
-        const user = await admin.auth().createUser({
-          email,
-          password,
-          displayName
-        });
+        const user = await admin
+          .auth()
+          .createUser({email, password, displayName});
         return user.uid;
       }
-      if (error instanceof ConflictException) {
-        throw error;
-      }
+      if (error instanceof ConflictException) throw error;
+
       throw new BadRequestException(
         error.message || 'Error al crear usuario en Firebase.'
       );
@@ -74,5 +74,19 @@ export class FirebaseAuthProvider implements AuthProvider {
 
   async generateCustomToken(uid: string): Promise<string> {
     return await admin.auth().createCustomToken(uid);
+  }
+
+  // 👇 NUEVO: eliminar usuario en Firebase
+  async deleteUser(uid: string): Promise<void> {
+    try {
+      await admin.auth().deleteUser(uid);
+      this.logger.log(`✅ Usuario Firebase eliminado correctamente: ${uid}`);
+    } catch (error) {
+      this.logger.error(
+        `❌ Error al eliminar usuario Firebase (${uid}):`,
+        error
+      );
+      throw new BadRequestException('Error al eliminar usuario en Firebase.');
+    }
   }
 }
