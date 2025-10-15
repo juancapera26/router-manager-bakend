@@ -198,6 +198,6 @@ enum paquete_tipo_paquete {
 }
 
 enum novedades_tipo {
-  Log_stica @map("Logística")
+    Logística @map("Logística")
   Operativa
 }
