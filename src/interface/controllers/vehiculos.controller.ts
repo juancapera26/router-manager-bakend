@@ -10,16 +10,16 @@ import {
   Param,
   ParseIntPipe,
   HttpCode,
-  HttpStatus,
+  HttpStatus
 } from '@nestjs/common';
-import { CreateVehiculoDto } from './dto/vehiculos/create-vehiculo.dto';
-import { UpdateVehiculoDto } from './dto/vehiculos/update-vehiculo.dto';
-import { GetAllVehiculosUseCase } from '../../application/logistica/vehiculos/use-cases/get-all-vehiculos.use-case';
-import { GetVehiculoUseCase } from '../../application/logistica/vehiculos/use-cases/get-vehiculo.use-case';
-import { CreateVehiculoUseCase } from '../../application/logistica/vehiculos/use-cases/create-vehiculo.use-case';
-import { UpdateVehiculoUseCase } from '../../application/logistica/vehiculos/use-cases/update-vehiculo.use-case';
-import { DeleteVehiculoUseCase } from '../../application/logistica/vehiculos/use-cases/delete-vehiculo.use-case';
-import { UpdateEstadoVehiculoUseCase } from '../../application/logistica/vehiculos/use-cases/update-estado-vehiculo.use-case';
+import {CreateVehiculoDto} from './dto/vehiculos/create-vehiculo.dto';
+import {UpdateVehiculoDto} from './dto/vehiculos/update-vehiculo.dto';
+import {GetAllVehiculosUseCase} from '../../application/logistica/vehiculos/use-cases/get-all-vehiculos.use-case';
+import {GetVehiculoUseCase} from '../../application/logistica/vehiculos/use-cases/get-vehiculo.use-case';
+import {CreateVehiculoUseCase} from '../../application/logistica/vehiculos/use-cases/create-vehiculo.use-case';
+import {UpdateVehiculoUseCase} from '../../application/logistica/vehiculos/use-cases/update-vehiculo.use-case';
+import {DeleteVehiculoUseCase} from '../../application/logistica/vehiculos/use-cases/delete-vehiculo.use-case';
+import {UpdateEstadoVehiculoUseCase} from '../../application/logistica/vehiculos/use-cases/update-estado-vehiculo.use-case';
 
 @Controller('vehiculos')
 export class VehiculosController {
@@ -29,7 +29,7 @@ export class VehiculosController {
     private readonly createVehiculoUseCase: CreateVehiculoUseCase,
     private readonly updateVehiculoUseCase: UpdateVehiculoUseCase,
     private readonly deleteVehiculoUseCase: DeleteVehiculoUseCase,
-    private readonly updateEstadoVehiculoUseCase: UpdateEstadoVehiculoUseCase,
+    private readonly updateEstadoVehiculoUseCase: UpdateEstadoVehiculoUseCase
   ) {}
 
   /**
@@ -42,7 +42,7 @@ export class VehiculosController {
     return {
       success: true,
       message: 'Vehículos obtenidos exitosamente',
-      data: vehiculos,
+      data: vehiculos
     };
   }
 
@@ -56,7 +56,7 @@ export class VehiculosController {
     return {
       success: true,
       message: 'Vehículo obtenido exitosamente',
-      data: vehiculo,
+      data: vehiculo
     };
   }
 
@@ -77,7 +77,7 @@ export class VehiculosController {
   @Put(':id')
   async update(
     @Param('id', ParseIntPipe) id: number,
-    @Body() updateVehiculoDto: UpdateVehiculoDto,
+    @Body() updateVehiculoDto: UpdateVehiculoDto
   ) {
     return await this.updateVehiculoUseCase.execute(id, updateVehiculoDto);
   }
@@ -89,7 +89,7 @@ export class VehiculosController {
   @Patch(':id/estado')
   async updateEstado(
     @Param('id', ParseIntPipe) id: number,
-    @Body('disponible') disponible: boolean,
+    @Body('disponible') disponible: boolean
   ) {
     return await this.updateEstadoVehiculoUseCase.execute(id, disponible);
   }
