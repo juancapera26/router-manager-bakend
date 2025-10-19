@@ -1,0 +1,13 @@
+//13-10-2025
+
+-Hoy vuelvo a ajustar el servicio de paquetes para integrar mas logica de negocio
+
+//Tengo que corregir el controlador de paquetes
+
+//Cuando sale el error de se esperaban "" argumentos pero se recibieron "" es porque toca envolver al argumento en unas {}
+
+*Acabo de crear un arhivo use-case para cambiar el estado del paquete
+
+!!!IMPORTANTE!!!
+*Edite el servicio de paquetes para que ahi mismo se genere el codigo de rastreo
+*Elimine el trigger de paquetes en la BD ya que no me dejaba crear paquetes

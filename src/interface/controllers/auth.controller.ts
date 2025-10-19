@@ -119,7 +119,7 @@ export class AuthController {
         .catch(() => null);
       if (!user) throw new UnauthorizedException('Usuario no encontrado');
 
-      // ⚠️ En Firebase Auth la validación real de contraseña se hace en el cliente (front)
+      // ⚠ En Firebase Auth la validación real de contraseña se hace en el cliente (front)
       const token = await this.firebaseAuthProvider.generateCustomToken(
         user.uid
       );
@@ -214,6 +214,6 @@ export class AuthController {
     } catch (error) {
       console.error('[AuthController] Error en verify:', error);
       return {success: false, message: 'Token inválido o expirado'};
-    }
-  }
+}
+}
 }
