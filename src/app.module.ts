@@ -18,7 +18,8 @@ import { ConductoresModule } from './interface/controllers/modules/conductores.m
     ManifestsModule,
     NovedadesModule,
     ConductoresModule,
-    VehiculosModule, // ✅ AGREGADO
+    VehiculosModule,
+    PaquetesModule,
   ]
 })
 export class AppModule {}
