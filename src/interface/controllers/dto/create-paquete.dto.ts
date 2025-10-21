@@ -1,7 +1,28 @@
-import {IsString,IsNumber,IsOptional,IsDateString,IsEnum} from 'class-validator';
-import {paquete_tipo_paquete} from '@prisma/client';
-import { CreateClienteDto } from 'src/clientes/dto/create-cliente.dto';
-export class CreatePaqueteDto {
+// dto/create-paquete.dto.ts
+import { IsString, IsNumber, IsOptional, IsEnum, ValidateNested, IsEmail } from 'class-validator';
+import { Type } from 'class-transformer';
+import { paquete_tipo_paquete } from '@prisma/client';
+
+// ✅ DTO para el destinatario (coincide con el frontend)
+class DestinatarioDto {
+  @IsString()
+  nombre: string;
+
+  @IsString()
+  apellido: string;
+
+  @IsString()
+  direccion: string;
+
+  @IsEmail()
+  correo: string;
+
+  @IsString()
+  telefono: string;
+}
+
+// ✅ DTO para las dimensiones (coincide con el frontend)
+class DimensionesDto {
   @IsNumber()
   largo: number;
 
@@ -13,46 +34,40 @@ export class CreatePaqueteDto {
 
   @IsNumber()
   peso: number;
+}
+
+// ✅ DTO principal que coincide con lo que envía el frontend
+export class CreatePaqueteDto {
+  @ValidateNested()
+  @Type(() => DestinatarioDto)
+  destinatario: DestinatarioDto;
+
+  @ValidateNested()
+  @Type(() => DimensionesDto)
+  dimensiones: DimensionesDto;
+
+  @IsEnum(paquete_tipo_paquete)
+  tipo_paquete: paquete_tipo_paquete;
 
   @IsNumber()
-  id_cliente: number;
+  cantidad: number;
 
-  @IsOptional()
   @IsNumber()
-  id_ruta?: number;
-
-  @IsOptional()
-  @IsNumber()
-  id_barrio?: number;
+  valor_declarado: number;
 
   @IsOptional()
   @IsString()
   direccion_entrega?: string;
 
-  @IsEnum(paquete_tipo_paquete)
-  tipo_paquete: paquete_tipo_paquete;
-
   @IsOptional()
+  @IsNumber()
   lat?: number;
 
   @IsOptional()
+  @IsNumber()
   lng?: number;
 
-  @IsNumber()
-  valor_declarado: number;
-
-  @IsNumber()
-  cantidad: number;
-
   @IsOptional()
-  @IsDateString()
-  fecha_entrega?: Date;
-
-  @IsOptional()
-  fecha_registro?: Date;
-
-   @IsOptional()
-   @IsString()
-   id_conductor?: number;
-  cliente: CreateClienteDto; 
+  @IsNumber()
+  id_barrio?: number;
 }
