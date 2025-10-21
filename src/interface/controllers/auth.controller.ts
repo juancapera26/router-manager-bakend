@@ -17,7 +17,15 @@ import {RegisterUserUseCase} from 'src/application/auth/use-cases/register-user.
 import {admin} from 'src/shared/firebase-admin';
 import {PrismaClient} from '@prisma/client';
 import {MailService} from 'src/mail/mail.service';
+import {
+  ApiTags,
+  ApiBody,
+  ApiResponse,
+  ApiOperation,
+  ApiBearerAuth
+} from '@nestjs/swagger';
 
+@ApiTags('Auth') // 🔹 Agrupa en la sección “Auth” de Swagger
 @Controller('auth')
 export class AuthController {
   private prisma = new PrismaClient();
@@ -32,6 +40,10 @@ export class AuthController {
   // Registro de usuario
   // =============================
   @Post('register')
+  @ApiOperation({summary: 'Registrar un nuevo usuario'})
+  @ApiBody({type: RegisterUserDto})
+  @ApiResponse({status: 201, description: 'Usuario registrado con éxito.'})
+  @ApiResponse({status: 400, description: 'Error al registrar el usuario.'})
   async register(
     @Body() body: RegisterUserDto
   ): Promise<
@@ -111,6 +123,17 @@ export class AuthController {
   // =============================
   @Post('login')
   @HttpCode(200)
+  @ApiOperation({summary: 'Iniciar sesión con email y password'})
+  @ApiBody({
+    schema: {
+      example: {
+        email: 'usuario@gmail.com',
+        password: '123456'
+      }
+    }
+  })
+  @ApiResponse({status: 200, description: 'Inicio de sesión exitoso.'})
+  @ApiResponse({status: 401, description: 'Credenciales inválidas.'})
   async login(@Body() body: {email: string; password: string}) {
     try {
       const user = await admin
@@ -119,7 +142,6 @@ export class AuthController {
         .catch(() => null);
       if (!user) throw new UnauthorizedException('Usuario no encontrado');
 
-      // ⚠ En Firebase Auth la validación real de contraseña se hace en el cliente (front)
       const token = await this.firebaseAuthProvider.generateCustomToken(
         user.uid
       );
@@ -131,16 +153,20 @@ export class AuthController {
   }
 
   // =============================
-  // Forgot Password (enviar correo)
+  // Forgot Password
   // =============================
   @Post('forgot-password')
+  @ApiOperation({summary: 'Enviar correo de recuperación de contraseña'})
+  @ApiBody({
+    schema: {
+      example: {email: 'usuario@gmail.com'}
+    }
+  })
+  @ApiResponse({status: 200, description: 'Correo de recuperación enviado.'})
   async forgotPassword(@Body() body: {email: string}) {
     try {
       const link = await admin.auth().generatePasswordResetLink(body.email);
-
-      // 🔥 Enviar el link por correo con tu servicio de email
       await this.mailService.sendPasswordResetEmail(body.email, link);
-
       return {success: true, message: 'Correo de recuperación enviado'};
     } catch (error: any) {
       throw new BadRequestException(
@@ -150,16 +176,25 @@ export class AuthController {
   }
 
   // =============================
-  // Reset Password (cambiar contraseña)
+  // Reset Password
   // =============================
   @Post('reset-password')
+  @ApiOperation({summary: 'Cambiar la contraseña de un usuario'})
+  @ApiBody({
+    schema: {
+      example: {email: 'usuario@gmail.com', newPassword: 'nueva123'}
+    }
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Contraseña actualizada correctamente.'
+  })
   async resetPassword(@Body() body: {email: string; newPassword: string}) {
     try {
       const user = await admin.auth().getUserByEmail(body.email);
       if (!user) throw new BadRequestException('Usuario no encontrado');
 
       await admin.auth().updateUser(user.uid, {password: body.newPassword});
-
       return {success: true, message: 'Contraseña actualizada correctamente'};
     } catch (error: any) {
       throw new BadRequestException(
@@ -172,6 +207,10 @@ export class AuthController {
   // Verificar token
   // =============================
   @Get('verify')
+  @ApiOperation({summary: 'Verificar token JWT y obtener datos del usuario'})
+  @ApiBearerAuth() // 🔹 Muestra campo “Authorize” en Swagger
+  @ApiResponse({status: 200, description: 'Token válido.'})
+  @ApiResponse({status: 401, description: 'Token inválido o expirado.'})
   async verify(@Req() req: Request) {
     const authHeader = req.headers['authorization'];
     if (!authHeader) return {success: false, message: 'Token no proporcionado'};
@@ -179,12 +218,9 @@ export class AuthController {
     const token = authHeader.split(' ')[1];
     try {
       const decoded = await admin.auth().verifyIdToken(token);
-
       const user = await this.prisma.usuario.findUnique({
         where: {correo: decoded.email},
-        include: {
-          empresa: true // ✅ solo incluimos empresa
-        }
+        include: {empresa: true}
       });
 
       if (!user) {
@@ -201,19 +237,19 @@ export class AuthController {
           uid: decoded.uid,
           correo: user.correo,
           id_usuario: user.id_usuario,
-          role: user.id_rol, // ✅ devolvemos el id del rol (número)
+          role: user.id_rol,
           nombre: user.nombre,
           apellido: user.apellido,
           telefono_movil: user.telefono_movil,
           documento: user.documento,
           tipo_documento: user.tipo_documento,
-          empresa: user.empresa?.nombre_empresa || null, // ✅ devolvemos el nombre de la empresa
-          foto_perfil: user.foto_perfil || null // 👈 aquí
+          empresa: user.empresa?.nombre_empresa || null,
+          foto_perfil: user.foto_perfil || null
         }
       };
     } catch (error) {
       console.error('[AuthController] Error en verify:', error);
       return {success: false, message: 'Token inválido o expirado'};
-}
-}
+    }
+  }
 }
