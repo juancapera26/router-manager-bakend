@@ -1,11 +1,20 @@
 // paquetes.controller.ts
-import { Controller, Get, Post, Put, Delete, Body, Param, Patch } from '@nestjs/common';
-import { PaquetesService } from '../../paquetes/paquetes.service';
-import { CreatePaqueteDto } from './dto/create-paquete.dto'; // ← Necesitas este DTO
-import { UpdatePaqueteDto } from './dto/update-paquete.dto';
-import { AsignarPaqueteDto } from './dto/asignar-paquete.dto';
-import { EstadoPaqueteDto } from './dto/estado-paquete.dto';
-import { paquete_estado_paquete } from '@prisma/client';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Body,
+  Param,
+  Patch
+} from '@nestjs/common';
+import {PaquetesService} from '../../paquetes/paquetes.service';
+import {CreatePaqueteDto} from './dto/create-paquete.dto'; // ← Necesitas este DTO
+import {UpdatePaqueteDto} from './dto/update-paquete.dto';
+import {AsignarPaqueteDto} from './dto/asignar-paquete.dto';
+import {EstadoPaqueteDto} from './dto/estado-paquete.dto';
+import {paquete_estado_paquete} from '@prisma/client';
 
 @Controller('paquetes')
 export class PaquetesController {
@@ -66,8 +75,8 @@ export class PaquetesController {
   reassignPaquete(
     @Param('id') id: number,
     @Body('id_conductor') id_conductor: number,
-    @Body('id_ruta') id_ruta: number,
+    @Body('id_ruta') id_ruta: number
   ) {
-    return this.paquetesService.reasignar(id, { id_ruta, id_conductor });
+    return this.paquetesService.reasignar(id, {id_ruta, id_conductor});
   }
 }
