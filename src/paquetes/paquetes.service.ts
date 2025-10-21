@@ -8,19 +8,20 @@ import {CreatePaqueteDto} from '../interface/controllers/dto/create-paquete.dto'
 import {UpdatePaqueteDto} from '../interface/controllers/dto/update-paquete.dto';
 import {AsignarPaqueteDto} from '../interface/controllers/dto/asignar-paquete.dto';
 import {EstadoPaqueteDto} from '../interface/controllers/dto/estado-paquete.dto';
-import {ClientesService} from '../clientes/clientes.service'; // 👈 importar service de clientes
+import {ClientesService} from '../clientes/clientes.service';
+import {paquete_estado_paquete} from '@prisma/client';
 
 @Injectable()
 export class PaquetesService {
   constructor(
     private prisma: PrismaService,
-    private clientesService: ClientesService // 👈 inyectar
+    private clientesService: ClientesService
   ) {}
 
-  // 🔹 CRUD básico
+  // CRUD básico
   getAll() {
     return this.prisma.paquete.findMany({
-      include: {cliente: true} // 👈 para ver también los datos del destinatario
+      include: {cliente: true}
     });
   }
 
@@ -30,40 +31,64 @@ export class PaquetesService {
       include: {cliente: true}
     });
   }
-  ///aqui iba el resto de codigo
   async create(dto: CreatePaqueteDto) {
-    // 👇 Validación: si no hay id_cliente pero sí los datos de cliente, lo creamos
-    if (!dto.id_cliente && dto.cliente) {
-      const nuevoCliente = await this.clientesService.create(dto.cliente);
-      dto.id_cliente = nuevoCliente.id_cliente;
-    }
-
-    if (!dto.id_cliente) {
-      throw new BadRequestException(
-        'Debe especificar un cliente existente o los datos del destinatario'
-      );
-    }
-
-    return this.prisma.paquete.create({
+    // 1. Crear el cliente/destinatario primero
+    const nuevoCliente = await this.prisma.cliente.create({
       data: {
-        largo: dto.largo,
-        ancho: dto.ancho,
-        alto: dto.alto,
-        peso: dto.peso,
-        id_cliente: dto.id_cliente,
+        nombre: dto.destinatario.nombre,
+        apellido: dto.destinatario.apellido,
+        direccion: dto.destinatario.direccion,
+        correo: dto.destinatario.correo,
+        telefono_movil: dto.destinatario.telefono // ← Nota: en BD es telefono_movil
+      }
+    });
+
+    // 2. Crear el paquete con el ID del cliente recién creado
+    const paqueteCreado = await this.prisma.paquete.create({
+      data: {
+        // Dimensiones
+        largo: dto.dimensiones.largo,
+        ancho: dto.dimensiones.ancho,
+        alto: dto.dimensiones.alto,
+        peso: dto.dimensiones.peso,
+
+        // Datos del paquete
         tipo_paquete: dto.tipo_paquete,
-        valor_declarado: dto.valor_declarado,
         cantidad: dto.cantidad,
+        valor_declarado: dto.valor_declarado,
+
+        // Relación con cliente
+        id_cliente: nuevoCliente.id_cliente,
+
+        // Campos opcionales
         direccion_entrega: dto.direccion_entrega,
-        id_ruta: dto.id_ruta,
-        id_barrio: dto.id_barrio,
         lat: dto.lat,
         lng: dto.lng,
-        fecha_entrega: dto.fecha_entrega,
-        fecha_registro: new Date() // 👈 agregado
+        id_barrio: dto.id_barrio,
+
+        // Estado inicial
+        estado_paquete: 'Pendiente'
       },
-      include: {cliente: true}
+      include: {
+        cliente: true,
+        barrio: true
+      }
     });
+
+    // 3. Generar código de rastreo si no existe
+    if (!paqueteCreado.codigo_rastreo) {
+      const codigoRastreo = `PKG-${String(paqueteCreado.id_paquete).padStart(6, '0')}`;
+      return this.prisma.paquete.update({
+        where: {id_paquete: paqueteCreado.id_paquete},
+        data: {codigo_rastreo: codigoRastreo},
+        include: {
+          cliente: true,
+          barrio: true
+        }
+      });
+    }
+
+    return paqueteCreado;
   }
 
   async update(id: number, dto: UpdatePaqueteDto) {
@@ -94,7 +119,6 @@ export class PaquetesService {
       data
     });
   }
-
   delete(id: number) {
     return this.prisma.paquete.delete({
       where: {id_paquete: id},
@@ -102,7 +126,7 @@ export class PaquetesService {
     });
   }
 
-  // 🔹 Operaciones adicionales
+  //Operaciones adicionales
   async asignar(id: number, dto: AsignarPaqueteDto) {
     const paquete = await this.prisma.paquete.findUnique({
       where: {id_paquete: id}
@@ -121,7 +145,7 @@ export class PaquetesService {
 
   async reasignar(id: number, dto: AsignarPaqueteDto) {
     return this.asignar(id, dto);
-  }
+  } //Este puede cambiar a futuro para ser mas escalable
 
   async cancelar(id: number) {
     const paquete = await this.prisma.paquete.findUnique({
@@ -152,6 +176,12 @@ export class PaquetesService {
       where: {id_paquete: id},
       data: {estado_paquete: dto.estado},
       include: {cliente: true}
+    });
+  }
+
+  async findByEstado(estado: paquete_estado_paquete) {
+    return this.prisma.paquete.findMany({
+      where: {estado_paquete: estado}
     });
   }
 }

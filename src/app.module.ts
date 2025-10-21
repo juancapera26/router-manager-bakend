@@ -9,6 +9,7 @@ import {AuthModule} from './interface/controllers/modules/auth.module';
 import {NovedadesModule} from './interface/controllers/modules/novedades.module';
 import {ConductoresModule} from './interface/controllers/modules/conductores.module';
 import {RutasModule} from './interface/controllers/modules/rutas.module';
+import {PaquetesModule} from './interface/controllers/modules/paquetes.module';
 
 @Module({
   imports: [
@@ -19,7 +20,8 @@ import {RutasModule} from './interface/controllers/modules/rutas.module';
     NovedadesModule,
     ConductoresModule,
     VehiculosModule,
-    RutasModule
+    RutasModule,
+    PaquetesModule
   ]
 })
 export class AppModule {}
