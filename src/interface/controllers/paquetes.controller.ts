@@ -1,5 +1,5 @@
 // paquetes.controller.ts
-import {Controller,Get,Put,Delete,Body,Param} from '@nestjs/common';
+import {Controller, Get, Put, Delete, Body, Param} from '@nestjs/common';
 import {PaquetesService} from '../../paquetes/paquetes.service';
 import {UpdatePaqueteDto} from './dto/update-paquete.dto';
 import {AsignarPaqueteDto} from './dto/asignar-paquete.dto';
@@ -23,7 +23,7 @@ export class PaquetesController {
     return this.paquetesService.update(Number(id), dto);
   }
 
-   @Put(':id/asignar')
+  @Put(':id/asignar')
   asignar(@Param('id') id: string, @Body() dto: AsignarPaqueteDto) {
     return this.paquetesService.asignar(Number(id), dto);
   }
@@ -42,7 +42,7 @@ export class PaquetesController {
   cambiarEstado(@Param('id') id: string, @Body() dto: EstadoPaqueteDto) {
     return this.paquetesService.cambiarEstado(Number(id), dto);
   }
-  
+
   @Delete(':id')
   delete(@Param('id') id: string) {
     return this.paquetesService.delete(Number(id));
