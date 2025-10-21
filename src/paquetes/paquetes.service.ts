@@ -67,7 +67,9 @@ export class PaquetesService {
         id_barrio: dto.id_barrio,
 
         // Estado inicial
-        estado_paquete: 'Pendiente'
+        estado_paquete: 'Pendiente',
+        // Fecha de registro requerida por Prisma
+        fecha_registro: new Date()
       },
       include: {
         cliente: true,
