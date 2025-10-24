@@ -1,14 +1,20 @@
-import { IsString, IsNumber, IsOptional, IsDateString, IsEnum } from 'class-validator';
-import { ruta_estado_ruta } from '@prisma/client';
+import {
+  IsString,
+  IsNumber,
+  IsOptional,
+  IsDateString,
+  IsEnum
+} from 'class-validator';
+import {ruta_estado_ruta} from '@prisma/client';
 
 export class CreateRutaDto {
   @IsOptional()
   @IsDateString()
-  fecha_inicio?: string;  // 👈 antes estaba "Date"
+  fecha_inicio?: string; // 👈 antes estaba "Date"
 
   @IsOptional()
   @IsDateString()
-  fecha_fin?: string;     // 👈 antes estaba "Date"
+  fecha_fin?: string; // 👈 antes estaba "Date"
 
   @IsOptional()
   @IsEnum(ruta_estado_ruta)

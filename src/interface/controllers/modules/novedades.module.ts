@@ -20,6 +20,6 @@ import {PrismaService} from 'prisma/prisma.service';
       inject: [PrismaService]
     }
   ],
-  exports: [] // si otro módulo necesita el repositorio, agrégalo aquí
+  exports: []
 })
 export class NovedadesModule {}

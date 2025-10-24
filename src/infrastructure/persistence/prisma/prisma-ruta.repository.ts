@@ -1,16 +1,48 @@
+// src/infrastructure/persistence/prisma/prisma-ruta.repository.ts
 import {Injectable} from '@nestjs/common';
 import {PrismaService} from './prisma.service';
+import {
+  RutaRepository,
+  CreateRutaData,
+  RutaEntity
+} from 'src/domain/logistica/rutas/repositories/ruta.repository';
 
 @Injectable()
-export class PrismaRutaRepository {
+export class PrismaRutaRepository implements RutaRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  // ✅ Obtener todas las rutas con su información relacionada
-  async getAllRutas() {
-    return this.prisma.ruta.findMany({
+  // Crear ruta
+  async create(data: CreateRutaData): Promise<RutaEntity> {
+    const ruta = await this.prisma.ruta.create({data});
+    return this.mapToEntity(ruta);
+  }
+
+  // Validaciones
+  async isConductorDisponible(idConductor: number): Promise<boolean> {
+    const ruta = await this.prisma.ruta.findFirst({
+      where: {
+        id_conductor: idConductor,
+        estado_ruta: {in: ['Asignada', 'En_ruta']}
+      }
+    });
+    return !ruta;
+  }
+
+  async isVehiculoDisponible(idVehiculo: number): Promise<boolean> {
+    const ruta = await this.prisma.ruta.findFirst({
+      where: {
+        id_vehiculo: idVehiculo,
+        estado_ruta: {in: ['Asignada', 'En_ruta']}
+      }
+    });
+    return !ruta;
+  }
+
+  // Obtener todas las rutas
+  async findAll(): Promise<RutaEntity[]> {
+    const rutas = await this.prisma.ruta.findMany({
       include: {
         usuario: {
-          // conductor
           select: {
             id_usuario: true,
             nombre: true,
@@ -32,5 +64,76 @@ export class PrismaRutaRepository {
       },
       orderBy: {fecha_creacion: 'desc'}
     });
+
+    return rutas.map(r => this.mapToEntity(r));
+  }
+
+  // Obtener ruta por id
+  async findById(id: number): Promise<RutaEntity | null> {
+    const ruta = await this.prisma.ruta.findUnique({
+      where: {id_ruta: id},
+      include: {
+        usuario: {
+          select: {
+            id_usuario: true,
+            nombre: true,
+            apellido: true,
+            correo: true
+          }
+        },
+        vehiculo: true,
+        paquete: true
+      }
+    });
+    return ruta ? this.mapToEntity(ruta) : null;
+  }
+
+  // Actualizar
+  async update(id: number, data: Partial<CreateRutaData>): Promise<RutaEntity> {
+    const ruta = await this.prisma.ruta.update({where: {id_ruta: id}, data});
+    return this.mapToEntity(ruta);
+  }
+
+  // Eliminar
+  async delete(id: number): Promise<boolean> {
+    await this.prisma.ruta.delete({where: {id_ruta: id}});
+    return true;
+  }
+
+  // Mapeo de Prisma a entidad
+  private mapToEntity(ruta: any): RutaEntity {
+    return {
+      id_ruta: ruta.id_ruta,
+      estado_ruta: ruta.estado_ruta,
+      fecha_inicio: ruta.fecha_inicio,
+      fecha_fin: ruta.fecha_fin,
+      id_conductor: ruta.id_conductor ?? 0,
+      id_vehiculo: ruta.id_vehiculo ?? 0,
+      cod_manifiesto: ruta.cod_manifiesto ?? '',
+      fecha_creacion: ruta.fecha_creacion,
+      usuario: ruta.usuario
+        ? {
+            id_usuario: ruta.usuario.id_usuario,
+            nombre: ruta.usuario.nombre,
+            apellido: ruta.usuario.apellido,
+            correo: ruta.usuario.correo
+          }
+        : undefined,
+      vehiculo: ruta.vehiculo
+        ? {
+            id_vehiculo: ruta.vehiculo.id_vehiculo,
+            placa: ruta.vehiculo.placa,
+            tipo: ruta.vehiculo.tipo,
+            estado_vehiculo: ruta.vehiculo.estado_vehiculo
+          }
+        : undefined,
+      paquete: ruta.paquete
+        ? ruta.paquete.map((p: any) => ({
+            id_paquete: p.id_paquete,
+            codigo_rastreo: p.codigo_rastreo,
+            estado_paquete: p.estado_paquete
+          }))
+        : []
+    };
   }
 }

@@ -50,18 +50,13 @@ export interface RutaRepository {
   isConductorDisponible(idConductor: number): Promise<boolean>;
   isVehiculoDisponible(idVehiculo: number): Promise<boolean>;
 
-  // Búsquedas básicas
-  findById(id: number): Promise<RutaEntity | null>;
-  findAll(): Promise<RutaEntity[]>;
-
-  // Filtros por estado
-  findActivas(): Promise<RutaEntity[]>;
-  findHistorial(): Promise<RutaEntity[]>;
-  findByConductor(idConductor: number): Promise<RutaEntity[]>;
+  // Búsqueda de rutas
+  findAll(): Promise<RutaEntity[]>; // <-- Agregar este método
 
   // Actualizar
   update(id: number, data: Partial<CreateRutaData>): Promise<RutaEntity>;
 
   // Eliminar
   delete(id: number): Promise<boolean>;
+  findById(id: number): Promise<RutaEntity | null>;
 }
