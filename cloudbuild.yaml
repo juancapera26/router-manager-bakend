@@ -1,22 +1,5 @@
-# cloudbuild.yaml
 steps:
-  # 1️⃣ Instalar dependencias
-  - name: 'node:20'
-    entrypoint: 'bash'
-    args:
-      - '-c'
-      - |
-        npm install
-
-  # 2️⃣ Compilar TypeScript (si aplica)
-  - name: 'node:20'
-    entrypoint: 'bash'
-    args:
-      - '-c'
-      - |
-        npm run build
-
-  # 3️⃣ Construir imagen Docker
+  # 1️⃣ Construir imagen Docker
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - 'build'
@@ -24,13 +7,13 @@ steps:
       - 'gcr.io/$PROJECT_ID/router-manager-backend:$COMMIT_SHA'
       - '.'
 
-  # 4️⃣ Subir imagen a Artifact Registry
+  # 2️⃣ Subir imagen a Artifact Registry
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - 'push'
       - 'gcr.io/$PROJECT_ID/router-manager-backend:$COMMIT_SHA'
 
-  # 5️⃣ Desplegar a Cloud Run
+  # 3️⃣ Desplegar a Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: 'bash'
     args:
@@ -42,13 +25,6 @@ steps:
           --platform managed \
           --allow-unauthenticated
 
-# Variables de sustitución opcionales
-substitutions:
-  _SERVICE_NAME: 'router-manager-backend'
-
-# Timeout opcional
-timeout: '900s' # 15 minutos
-
-# ✅ Opción añadida para resolver el error de logs
+timeout: '900s'
 options:
   logging: CLOUD_LOGGING_ONLY
