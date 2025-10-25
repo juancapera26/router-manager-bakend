@@ -1,11 +1,6 @@
-# Usa Node 20 (requerido por NestJS 11 y Firebase)
-FROM node:20-alpine
-
-# Establecer directorio de trabajo
-WORKDIR /app
-
-# Copiar archivos de dependencias
+# Copiar archivos de dependencias y carpeta prisma
 COPY package*.json ./
+COPY prisma ./prisma
 
 # Instalar dependencias
 RUN npm install
@@ -19,11 +14,9 @@ COPY . .
 # Compilar el proyecto
 RUN npm run build
 
-# Establecer variable de entorno
+# Establecer puerto
 ENV PORT=8080
-
-# Exponer el puerto 8080 para Cloud Run
 EXPOSE 8080
 
-# Comando para iniciar NestJS
+# Comando producción
 CMD ["npm", "run", "start:prod"]
