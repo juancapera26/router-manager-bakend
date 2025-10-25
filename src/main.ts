@@ -27,17 +27,17 @@ async function bootstrap() {
       'Documentación del backend de logística de rutas y entregas'
     )
     .setVersion('1.0')
-    .addBearerAuth() // 🔐 si usas autenticación JWT
+    .addBearerAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
 
   // 🚀 Iniciar servidor
-  const port = process.env.PORT ?? 3000;
-  await app.listen(port);
-  console.log(`Servidor ejecutándose en http://localhost:${port}`);
-  console.log(`Documentación Swagger en http://localhost:${port}/api/docs`);
+  const port = process.env.PORT || 8080;
+  await app.listen(port, '0.0.0.0');
+  console.log(`✅ Servidor escuchando en el puerto ${port}`);
+  console.log(`📘 Swagger: http://localhost:${port}/api/docs`);
 }
 
 bootstrap();
