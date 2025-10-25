@@ -1,3 +1,9 @@
+# Usar Node 20
+FROM node:20-alpine
+
+# Establecer directorio de trabajo
+WORKDIR /app
+
 # Copiar archivos de dependencias y carpeta prisma
 COPY package*.json ./
 COPY prisma ./prisma
@@ -18,5 +24,5 @@ RUN npm run build
 ENV PORT=8080
 EXPOSE 8080
 
-# Comando producción
+# Comando para producción
 CMD ["npm", "run", "start:prod"]
