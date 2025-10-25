@@ -48,3 +48,7 @@ substitutions:
 
 # Timeout opcional
 timeout: '900s' # 15 minutos
+
+# ✅ Opción añadida para resolver el error de logs
+options:
+  logging: CLOUD_LOGGING_ONLY
