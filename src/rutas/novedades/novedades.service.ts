@@ -1,6 +1,6 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
-import { CreateNovedadDto } from '../../interface/controllers/dto/create-novedad.dto';
-import { PrismaService } from '../../../prisma/prisma.service';
+import {Injectable, BadRequestException} from '@nestjs/common';
+import {CreateNovedadDto} from '../../interface/controllers/dto/create-novedad.dto';
+import {PrismaService} from 'prisma/prisma.service';
 
 @Injectable()
 export class NovedadesService {
@@ -33,10 +33,12 @@ export class NovedadesService {
   async listarNovedades() {
     try {
       return await this.prisma.novedades.findMany({
-        include: { usuario: true }
+        include: {usuario: true}
       });
     } catch (error) {
-      throw new BadRequestException(`Error al listar novedades: ${error.message}`);
+      throw new BadRequestException(
+        `Error al listar novedades: ${error.message}`
+      );
     }
   }
 }
