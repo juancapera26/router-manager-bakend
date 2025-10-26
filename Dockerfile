@@ -1,35 +1,22 @@
-# Etapa 1: Construcción
+# Builder
 FROM node:20-alpine AS builder
-
 WORKDIR /app
-
-# Copiar archivos de dependencias
 COPY package*.json ./
 COPY prisma ./prisma
-
-# Instalar dependencias
-RUN npm install
-
-# Copiar el código fuente
-COPY . .
-
-# Generar el cliente Prisma y compilar NestJS
+RUN npm ci
 RUN npx prisma generate
+COPY . .
 RUN npm run build
 
-
-# Etapa 2: Ejecución
+# Final
 FROM node:20-alpine
-
 WORKDIR /app
-
-# Copiar solo lo necesario para ejecutar
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma
 
-EXPOSE 8080
+ENV NODE_ENV=production
 ENV PORT=8080
-
+EXPOSE 8080
 CMD ["node", "dist/main.js"]
