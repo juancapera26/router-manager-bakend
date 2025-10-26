@@ -126,7 +126,7 @@ export class PaquetesController {
   async registrarEntrega(
     @Param('id') id: string,
     @Body() dto: RegistrarEntregaDto,
-    @UploadedFile() file: Express.Multer.File
+    @UploadedFile() file: Express.MulterFile | undefined
   ) {
     const imagePath = file ? `/uploads/entregas/${file.filename}` : null;
 

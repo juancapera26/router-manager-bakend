@@ -8,7 +8,7 @@ export class NovedadesService {
 
   async crearNovedad(
     data: CreateNovedadDto,
-    file?: Express.Multer.File,
+    file?: Express.MulterFile,
     usuarioId?: number
   ) {
     if (!usuarioId) {

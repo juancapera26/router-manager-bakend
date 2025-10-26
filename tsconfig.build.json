@@ -1,13 +1,18 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "outDir": "./dist",
-    "rootDir": "src",
-    "module": "CommonJS",
-    "target": "ES2020",
-    "strict": false,
-    "esModuleInterop": true
+    "outDir": "./dist", // Carpeta de salida
+    "rootDir": "./src", // Carpeta raíz de tu código fuente
+    "module": "CommonJS", // Para Node
+    "target": "ES2020", // Compatible con GCP Node
+    "strict": false, // Desactiva checks estrictos si quieres menos errores
+    "esModuleInterop": true,
+    "baseUrl": "./", // Para imports absolutos tipo src/*
+    "paths": {
+       "src/*": ["src/*"],
+    },
+    "sourceMap": true
   },
-  "include": ["src/**/*.ts"],
-  "exclude": ["node_modules", "test", "dist", "**/*spec.ts"]
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/@types/**/*.d.ts"],
+  "exclude": ["node_modules", "dist", "test", "**/*.spec.ts"]
 }
