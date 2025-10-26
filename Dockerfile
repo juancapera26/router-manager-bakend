@@ -2,19 +2,14 @@
 FROM node:20-alpine AS builder
 WORKDIR /app
 
-# Habilitar Corepack para Yarn (viene con Node 20)
 RUN corepack enable
 
-# Copiar package.json y yarn.lock
 COPY package.json yarn.lock ./
-
-# Instalar dependencias
 RUN yarn install --frozen-lockfile
 
-# Copiar código fuente
 COPY . .
 
-# Generar cliente Prisma (si usas Prisma)
+# Generar cliente Prisma
 RUN npx prisma generate
 
 # Compilar TypeScript
@@ -24,13 +19,19 @@ RUN yarn build
 FROM node:20-alpine
 WORKDIR /app
 
-# Copiar solo lo necesario
-COPY --from=builder /app/package.json ./
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/dist ./dist
-
 ENV NODE_ENV=production
 ENV PORT=8080
 EXPOSE 8080
 
-CMD ["node", "dist/main.js"]
+# Librerías necesarias para Prisma
+RUN apk add --no-cache libc6-compat openssl
+
+# Copiar solo lo necesario del builder
+COPY --from=builder /app/package.json ./
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/dist ./dist
+
+# No copiar secretos si usas Secret Manager
+# COPY secrets/firebase-service-account.json ./secrets/
+
+CMD ["node", "-r", "module-alias/register", "dist/main.js"]
