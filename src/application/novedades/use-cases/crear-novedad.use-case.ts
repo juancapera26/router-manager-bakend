@@ -1,4 +1,4 @@
-import {Injectable, Inject} from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import {
   NovedadRepository,
   CrearNovedadProps
@@ -15,7 +15,7 @@ export class CrearNovedadUseCase {
 
   async execute(
     data: CrearNovedadProps,
-    file: Express.Multer.File | undefined
+    file: Express.MulterFile | undefined
   ): Promise<Novedad> {
     let imagenPath: string | null = null;
 
