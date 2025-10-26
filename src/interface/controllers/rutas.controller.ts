@@ -38,7 +38,6 @@ export class RutasController {
     return await this.cambiarEstadoRutaUseCase.execute(rutaId, dto.nuevoEstado);
   }
 
-  // src/infrastructure/controllers/rutas.controller.ts
   @Post()
   async create(@Body() dto: CreateRutaDto) {
     const data: CreateRutaData = {

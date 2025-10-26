@@ -19,7 +19,6 @@ export interface RutaEntity {
   id_vehiculo: number;
   cod_manifiesto: string;
   fecha_creacion: Date;
-  // Relaciones opcionales para cuando se necesiten
   usuario?: {
     id_usuario: number;
     nombre: string;
@@ -51,7 +50,7 @@ export interface RutaRepository {
   isVehiculoDisponible(idVehiculo: number): Promise<boolean>;
 
   // Búsqueda de rutas
-  findAll(): Promise<RutaEntity[]>; // <-- Agregar este método
+  findAll(): Promise<RutaEntity[]>;
 
   // Actualizar
   update(id: number, data: Partial<CreateRutaData>): Promise<RutaEntity>;

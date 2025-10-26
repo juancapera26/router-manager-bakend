@@ -10,11 +10,11 @@ import {ruta_estado_ruta} from '@prisma/client';
 export class CreateRutaDto {
   @IsOptional()
   @IsDateString()
-  fecha_inicio?: string; // 👈 antes estaba "Date"
+  fecha_inicio?: string;
 
   @IsOptional()
   @IsDateString()
-  fecha_fin?: string; // 👈 antes estaba "Date"
+  fecha_fin?: string;
 
   @IsOptional()
   @IsEnum(ruta_estado_ruta)

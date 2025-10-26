@@ -15,6 +15,7 @@ export class ConductorEntity {
   foto_perfil: string | null;
   empresa?: EmpresaEntity | null;
   uid: string;
+  estado?: string; // 👈 agrega este campo
 }
 
 export class Conductor {

@@ -7,11 +7,14 @@ import {ConductorEntity} from '../../../domain/conductores/entities/conductor.en
 export class PrismaConductorRepository implements ConductorRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  // 🔹 Obtener todos los conductores (incluye empresa)
+  // 🔹 Obtener todos los conductores (incluye empresa y estado_conductor)
   async findAll(): Promise<ConductorEntity[]> {
     const usuarios = await this.prisma.usuario.findMany({
-      where: {id_rol: 2},
-      include: {empresa: true} // 👈 solo aquí incluimos empresa
+      where: {id_rol: 2}, // 2 = rol conductor
+      include: {
+        empresa: true,
+        estado_conductor: true // ✅ ya es válido tras ajustar el schema
+      }
     });
 
     return usuarios.map(u => ({
@@ -22,6 +25,7 @@ export class PrismaConductorRepository implements ConductorRepository {
       correo: u.correo ?? '',
       telefono: u.telefono_movil ?? '',
       foto_perfil: u.foto_perfil ?? null,
+      estado: u.estado_conductor?.estado ?? 'Sin estado', // ✅ tipo seguro
       empresa: u.empresa
         ? {
             id_empresa: u.empresa.id_empresa,
@@ -34,11 +38,14 @@ export class PrismaConductorRepository implements ConductorRepository {
     }));
   }
 
-  // 🔹 Buscar un conductor por ID (incluye empresa)
+  // 🔹 Buscar un conductor por ID (incluye empresa y estado)
   async findById(id: number): Promise<ConductorEntity | null> {
     const u = await this.prisma.usuario.findUnique({
       where: {id_usuario: id},
-      include: {empresa: true} // 👈 incluir empresa solo al leer
+      include: {
+        empresa: true,
+        estado_conductor: true // ✅ incluir también estado aquí
+      }
     });
 
     if (!u) return null;
@@ -51,6 +58,7 @@ export class PrismaConductorRepository implements ConductorRepository {
       correo: u.correo ?? '',
       telefono: u.telefono_movil ?? '',
       foto_perfil: u.foto_perfil ?? null,
+      estado: u.estado_conductor?.estado ?? 'Sin estado',
       empresa: u.empresa
         ? {
             id_empresa: u.empresa.id_empresa,
@@ -63,7 +71,7 @@ export class PrismaConductorRepository implements ConductorRepository {
     };
   }
 
-  // 🔹 Crear conductor (no incluye empresa en el retorno)
+  // 🔹 Crear conductor (crea usuario y su estado_conductor asociado)
   async create(data: Partial<ConductorEntity>): Promise<ConductorEntity> {
     const newUser = await this.prisma.usuario.create({
       data: {
@@ -71,11 +79,19 @@ export class PrismaConductorRepository implements ConductorRepository {
         apellido: data.apellido ?? 'N/A',
         correo: data.correo ?? 'demo@example.com',
         contrasena: '123456',
-        id_empresa: 1, // ⚠️ o pásalo por parámetro si quieres que sea dinámico
+        id_empresa: 1, // ⚙️ por defecto o pásalo como parámetro
         id_rol: 2,
         telefono_movil: data.telefono,
         foto_perfil: data.foto_perfil,
-        uid: Math.random().toString(36).substring(2)
+        uid: Math.random().toString(36).substring(2),
+        // ✅ crear estado_conductor automáticamente
+        estado_conductor: {
+          create: {estado: 'Disponible'}
+        }
+      },
+      include: {
+        empresa: true,
+        estado_conductor: true
       }
     });
 
@@ -87,11 +103,20 @@ export class PrismaConductorRepository implements ConductorRepository {
       correo: newUser.correo ?? '',
       telefono: newUser.telefono_movil ?? '',
       foto_perfil: newUser.foto_perfil ?? null,
+      estado: newUser.estado_conductor?.estado ?? 'Sin estado',
+      empresa: newUser.empresa
+        ? {
+            id_empresa: newUser.empresa.id_empresa,
+            nombre_empresa: newUser.empresa.nombre_empresa,
+            nit: newUser.empresa.nit,
+            telefono_empresa: newUser.empresa.telefono_empresa
+          }
+        : null,
       uid: newUser.uid
     };
   }
 
-  // 🔹 Actualizar conductor (no incluye empresa en el retorno)
+  // 🔹 Actualizar conductor (nombre, correo, teléfono o foto)
   async update(
     id: number,
     data: Partial<ConductorEntity>
@@ -108,7 +133,11 @@ export class PrismaConductorRepository implements ConductorRepository {
 
     const updated = await this.prisma.usuario.update({
       where: {id_usuario: id},
-      data: updateData
+      data: updateData,
+      include: {
+        empresa: true,
+        estado_conductor: true // ✅ para devolver estado actualizado
+      }
     });
 
     return {
@@ -119,6 +148,15 @@ export class PrismaConductorRepository implements ConductorRepository {
       correo: updated.correo ?? '',
       telefono: updated.telefono_movil ?? '',
       foto_perfil: updated.foto_perfil ?? null,
+      estado: updated.estado_conductor?.estado ?? 'Sin estado',
+      empresa: updated.empresa
+        ? {
+            id_empresa: updated.empresa.id_empresa,
+            nombre_empresa: updated.empresa.nombre_empresa,
+            nit: updated.empresa.nit,
+            telefono_empresa: updated.empresa.telefono_empresa
+          }
+        : null,
       uid: updated.uid
     };
   }
