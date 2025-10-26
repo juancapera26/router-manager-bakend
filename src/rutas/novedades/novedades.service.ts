@@ -1,6 +1,6 @@
 import {Injectable, BadRequestException} from '@nestjs/common';
 import {CreateNovedadDto} from '../../interface/controllers/dto/create-novedad.dto';
-import {PrismaService} from 'prisma/prisma.service';
+import {PrismaService} from 'src/prisma/prisma.service';
 
 @Injectable()
 export class NovedadesService {
