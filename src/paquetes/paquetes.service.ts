@@ -1,137 +1,150 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
-import { CreatePaqueteDto } from '../interface/controllers/dto/create-paquete.dto';
-import { UpdatePaqueteDto } from '../interface/controllers/dto/update-paquete.dto'; 
-import { AsignarPaqueteDto } from '../interface/controllers/dto/asignar-paquete.dto'; 
-import { EstadoPaqueteDto } from '../interface/controllers/dto/estado-paquete.dto'; 
-import { ClientesService } from '../clientes/clientes.service'; 
-import { paquete_estado_paquete } from '@prisma/client';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException
+} from '@nestjs/common';
+import {PrismaService} from '../../prisma/prisma.service';
+import {CreatePaqueteDto} from '../interface/controllers/dto/create-paquete.dto';
+import {UpdatePaqueteDto} from '../interface/controllers/dto/update-paquete.dto';
+import {AsignarPaqueteDto} from '../interface/controllers/dto/asignar-paquete.dto';
+import {EstadoPaqueteDto} from '../interface/controllers/dto/estado-paquete.dto';
+import {ClientesService} from '../clientes/clientes.service';
+import {paquete_estado_paquete} from '@prisma/client';
 
 @Injectable()
 export class PaquetesService {
   constructor(
     private prisma: PrismaService,
-    private clientesService: ClientesService, 
+    private clientesService: ClientesService
   ) {}
 
   // CRUD básico
   getAll() {
     return this.prisma.paquete.findMany({
-      include: { cliente: true }, 
+      include: {cliente: true}
     });
   }
 
   getOne(id: number) {
     return this.prisma.paquete.findUnique({
-      where: { id_paquete: id },
-      include: { cliente: true },
+      where: {id_paquete: id},
+      include: {cliente: true}
     });
   }
   async create(dto: CreatePaqueteDto) {
-  // 1. Crear el cliente/destinatario primero
-  const nuevoCliente = await this.prisma.cliente.create({
-    data: {
-      nombre: dto.destinatario.nombre,
-      apellido: dto.destinatario.apellido,
-      direccion: dto.destinatario.direccion,
-      correo: dto.destinatario.correo,
-      telefono_movil: dto.destinatario.telefono, // ← Nota: en BD es telefono_movil
-    },
-  });
-
-  // 2. Crear el paquete con el ID del cliente recién creado
-  const paqueteCreado = await this.prisma.paquete.create({
-    data: {
-      // Dimensiones
-      largo: dto.dimensiones.largo,
-      ancho: dto.dimensiones.ancho,
-      alto: dto.dimensiones.alto,
-      peso: dto.dimensiones.peso,
-
-      // Datos del paquete
-      tipo_paquete: dto.tipo_paquete,
-      cantidad: dto.cantidad,
-      valor_declarado: dto.valor_declarado,
-
-      // Relación con cliente
-      id_cliente: nuevoCliente.id_cliente,
-
-      // Campos opcionales
-      direccion_entrega: dto.direccion_entrega,
-      lat: dto.lat,
-      lng: dto.lng,
-      id_barrio: dto.id_barrio,
-
-      // Estado inicial
-      estado_paquete: 'Pendiente',
-    },
-    include: { 
-      cliente: true,
-      barrio: true,
-    },
-  });
-
-  // 3. Generar código de rastreo si no existe
-  if (!paqueteCreado.codigo_rastreo) {
-    const codigoRastreo = `PKG-${String(paqueteCreado.id_paquete).padStart(6, '0')}`;
-    return this.prisma.paquete.update({
-      where: { id_paquete: paqueteCreado.id_paquete },
-      data: { codigo_rastreo: codigoRastreo },
-      include: { 
-        cliente: true,
-        barrio: true,
-      },
+    // 1. Crear el cliente/destinatario primero
+    const nuevoCliente = await this.prisma.cliente.create({
+      data: {
+        nombre: dto.destinatario.nombre,
+        apellido: dto.destinatario.apellido,
+        direccion: dto.destinatario.direccion,
+        correo: dto.destinatario.correo,
+        telefono_movil: dto.destinatario.telefono // ← Nota: en BD es telefono_movil
+      }
     });
+
+    // 2. Crear el paquete con el ID del cliente recién creado
+    const paqueteCreado = await this.prisma.paquete.create({
+      data: {
+        // Dimensiones
+        largo: dto.dimensiones.largo,
+        ancho: dto.dimensiones.ancho,
+        alto: dto.dimensiones.alto,
+        peso: dto.dimensiones.peso,
+
+        // Datos del paquete
+        tipo_paquete: dto.tipo_paquete,
+        cantidad: dto.cantidad,
+        valor_declarado: dto.valor_declarado,
+
+        // Relación con cliente
+        id_cliente: nuevoCliente.id_cliente,
+
+        // Campos opcionales
+        direccion_entrega: dto.direccion_entrega,
+        lat: dto.lat,
+        lng: dto.lng,
+        id_barrio: dto.id_barrio,
+
+        // Estado inicial
+        estado_paquete: 'Pendiente',
+        // Fecha de registro requerida por Prisma
+        fecha_registro: new Date()
+      },
+      include: {
+        cliente: true,
+        barrio: true
+      }
+    });
+
+    // 3. Generar código de rastreo si no existe
+    if (!paqueteCreado.codigo_rastreo) {
+      const codigoRastreo = `PKG-${String(paqueteCreado.id_paquete).padStart(6, '0')}`;
+      return this.prisma.paquete.update({
+        where: {id_paquete: paqueteCreado.id_paquete},
+        data: {codigo_rastreo: codigoRastreo},
+        include: {
+          cliente: true,
+          barrio: true
+        }
+      });
+    }
+
+    return paqueteCreado;
   }
 
   return paqueteCreado;
 }
 
   async update(id: number, dto: UpdatePaqueteDto) {
-  const data: any = {};
+    const data: any = {};
 
-  if (dto.largo !== undefined) data.largo = dto.largo;
-  if (dto.ancho !== undefined) data.ancho = dto.ancho;
-  if (dto.alto !== undefined) data.alto = dto.alto;
-  if (dto.peso !== undefined) data.peso = dto.peso;
-  if (dto.tipo_paquete !== undefined) data.tipo_paquete = dto.tipo_paquete;
-  if (dto.valor_declarado !== undefined) data.valor_declarado = dto.valor_declarado;
-  if (dto.cantidad !== undefined) data.cantidad = dto.cantidad;
-  if (dto.direccion_entrega !== undefined) data.direccion_entrega = dto.direccion_entrega;
-  if (dto.id_ruta !== undefined) data.id_ruta = dto.id_ruta;
-  if (dto.id_barrio !== undefined) data.id_barrio = dto.id_barrio;
-  if (dto.lat !== undefined) data.lat = dto.lat;
-  if (dto.lng !== undefined) data.lng = dto.lng;
-  if (dto.fecha_entrega !== undefined) data.fecha_entrega = dto.fecha_entrega;
+    if (dto.largo !== undefined) data.largo = dto.largo;
+    if (dto.ancho !== undefined) data.ancho = dto.ancho;
+    if (dto.alto !== undefined) data.alto = dto.alto;
+    if (dto.peso !== undefined) data.peso = dto.peso;
+    if (dto.tipo_paquete !== undefined) data.tipo_paquete = dto.tipo_paquete;
+    if (dto.valor_declarado !== undefined)
+      data.valor_declarado = dto.valor_declarado;
+    if (dto.cantidad !== undefined) data.cantidad = dto.cantidad;
+    if (dto.direccion_entrega !== undefined)
+      data.direccion_entrega = dto.direccion_entrega;
+    if (dto.id_ruta !== undefined) data.id_ruta = dto.id_ruta;
+    if (dto.id_barrio !== undefined) data.id_barrio = dto.id_barrio;
+    if (dto.lat !== undefined) data.lat = dto.lat;
+    if (dto.lng !== undefined) data.lng = dto.lng;
+    if (dto.fecha_entrega !== undefined) data.fecha_entrega = dto.fecha_entrega;
 
-  if (dto.id_cliente !== undefined) {
-    data.cliente = { connect: { id_cliente: dto.id_cliente } };
+    if (dto.id_cliente !== undefined) {
+      data.cliente = {connect: {id_cliente: dto.id_cliente}};
+    }
+
+    return this.prisma.paquete.update({
+      where: {id_paquete: id},
+      data
+    });
   }
-
-  return this.prisma.paquete.update({
-    where: { id_paquete: id },
-    data,
-  });
-}
   delete(id: number) {
     return this.prisma.paquete.delete({
-      where: { id_paquete: id },
-      include: { cliente: true },
+      where: {id_paquete: id},
+      include: {cliente: true}
     });
   }
 
   //Operaciones adicionales
   async asignar(id: number, dto: AsignarPaqueteDto) {
-    const paquete = await this.prisma.paquete.findUnique({ where: { id_paquete: id } });
+    const paquete = await this.prisma.paquete.findUnique({
+      where: {id_paquete: id}
+    });
     if (!paquete) throw new NotFoundException('Paquete no encontrado');
 
     return this.prisma.paquete.update({
-      where: { id_paquete: id },
+      where: {id_paquete: id},
       data: {
         id_ruta: dto.id_ruta,
-        estado_paquete: 'Asignado',
+        estado_paquete: 'Asignado'
       },
-      include: { cliente: true },
+      include: {cliente: true}
     });
   }
 
@@ -140,33 +153,40 @@ export class PaquetesService {
   } //Este puede cambiar a futuro para ser mas escalable
 
   async cancelar(id: number) {
-    const paquete = await this.prisma.paquete.findUnique({ where: { id_paquete: id } });
+    const paquete = await this.prisma.paquete.findUnique({
+      where: {id_paquete: id}
+    });
     if (!paquete) throw new NotFoundException('Paquete no encontrado');
 
     return this.prisma.paquete.update({
-      where: { id_paquete: id },
-      data: { estado_paquete: 'Pendiente' },
-      include: { cliente: true },
+      where: {id_paquete: id},
+      data: {estado_paquete: 'Pendiente'},
+      include: {cliente: true}
     });
   }
 
   async cambiarEstado(id: number, dto: EstadoPaqueteDto) {
-    const paquete = await this.prisma.paquete.findUnique({ where: { id_paquete: id } });
+    const paquete = await this.prisma.paquete.findUnique({
+      where: {id_paquete: id}
+    });
     if (!paquete) throw new NotFoundException('Paquete no encontrado');
 
     if (paquete.estado_paquete === 'Entregado' && dto.estado !== 'Entregado') {
-      throw new BadRequestException('No se puede modificar un paquete ya entregado');
+      throw new BadRequestException(
+        'No se puede modificar un paquete ya entregado'
+      );
     }
 
     return this.prisma.paquete.update({
-      where: { id_paquete: id },
-      data: { estado_paquete: dto.estado },
-      include: { cliente: true },
+      where: {id_paquete: id},
+      data: {estado_paquete: dto.estado},
+      include: {cliente: true}
     });
   }
 
   async findByEstado(estado: paquete_estado_paquete) {
-  return this.prisma.paquete.findMany({
-    where: { estado_paquete: estado },
-  });
-}}
+    return this.prisma.paquete.findMany({
+      where: {estado_paquete: estado}
+    });
+  }
+}
