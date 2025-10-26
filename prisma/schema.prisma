@@ -28,7 +28,7 @@ model empresa {
 model paquete {
   id_paquete          Int                    @id @default(autoincrement()) @db.UnsignedInt
   codigo_rastreo      String?                @unique(map: "codigo_rastreo") @db.VarChar(50)
-  fecha_registro      DateTime               @default(now()) @db.Date
+  fecha_registro      DateTime               @db.Date
   fecha_entrega       DateTime?              @db.DateTime(0)
   estado_paquete      paquete_estado_paquete @default(Pendiente)
   largo               Float                  @db.Float
@@ -198,6 +198,6 @@ enum paquete_tipo_paquete {
 }
 
 enum novedades_tipo {
-    Logística @map("Logística")
+  // Logística @map("Logística")
   Operativa
 }
