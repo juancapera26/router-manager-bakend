@@ -9,7 +9,7 @@
     "esModuleInterop": true,
     "baseUrl": "./", // Para imports absolutos tipo src/*
     "paths": {
-       "src/*": ["src/*"],
+      "src/*": ["src/*"]
     },
     "sourceMap": true
   },
