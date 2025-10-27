@@ -30,6 +30,7 @@ RUN apk add --no-cache libc6-compat openssl
 COPY --from=builder /app/package.json ./
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/prisma ./prisma
 
 # No copiar secretos si usas Secret Manager
 # COPY secrets/firebase-service-account.json ./secrets/
