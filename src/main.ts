@@ -6,15 +6,15 @@ import {Logger} from '@nestjs/common';
 async function bootstrap() {
   try {
     Logger.log('🚀 Iniciando aplicación...', 'Bootstrap');
-    
+
     const app = await NestFactory.create(AppModule, {
-      logger: ['log', 'error', 'warn', 'debug', 'verbose'],
+      logger: ['log', 'error', 'warn', 'debug', 'verbose']
     });
 
     // Habilitar CORS
     app.enableCors({
       origin: true,
-      credentials: true,
+      credentials: true
     });
 
     const port = parseInt(process.env.PORT || '8080', 10);
@@ -25,8 +25,11 @@ async function bootstrap() {
     Logger.log(`📌 Servidor escuchando en 0.0.0.0:${port}`, 'Bootstrap');
 
     await app.listen(port, '0.0.0.0');
-    
-    Logger.log(`✅ Aplicación iniciada correctamente en http://0.0.0.0:${port}`, 'Bootstrap');
+
+    Logger.log(
+      `✅ Aplicación iniciada correctamente en http://0.0.0.0:${port}`,
+      'Bootstrap'
+    );
   } catch (error) {
     Logger.error('❌ Error al iniciar el servidor:', error);
     console.error('Error completo:', error);
