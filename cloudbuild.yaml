@@ -24,6 +24,13 @@ steps:
           --region us-central1 \
           --platform managed \
           --allow-unauthenticated \
+          --port=8080 \
+          --timeout=300 \
+          --min-instances=0 \
+          --max-instances=10 \
+          --cpu=1 \
+          --memory=512Mi \
+          --startup-cpu-boost \
           --update-secrets=DATABASE_URL=DATABASE_URL:latest,SMTP_PASS=SMTP_PASS:latest,FIREBASE_CONFIG=FIREBASE_CONFIG:latest,GOOGLE_MAPS_API_KEY=GOOGLE_MAPS_API_KEY:latest,FIREBASE_API_KEY=FIREBASE_API_KEY:latest,FIREBASE_SERVICE_ACCOUNT=FIREBASE_SERVICE_ACCOUNT:latest
 
 timeout: '900s'

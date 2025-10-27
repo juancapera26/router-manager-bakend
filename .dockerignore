@@ -1,0 +1,50 @@
+# Node
+node_modules
+npm-debug.log
+yarn-error.log
+
+# Git
+.git
+.gitignore
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# Tests
+test
+coverage
+*.spec.ts
+*.e2e-spec.ts
+
+# Build
+dist
+*.tsbuildinfo
+
+# Env
+.env
+.env.local
+.env.*.local
+
+# Misc
+README.md
+.prettierrc
+.eslintrc.js
+eslint.config.mjs
+
+# Uploads (archivos de desarrollo)
+uploads
+
+# Documentation
+Notas.txt
+estructura.txt
+
+# Vercel
+vercel.json
+.vercel
+
+# CI/CD (no necesario en el contenedor)
+cloudbuild.yaml
+

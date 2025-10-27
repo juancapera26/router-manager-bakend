@@ -4,19 +4,38 @@ import {AppModule} from './app.module';
 import {Logger} from '@nestjs/common';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  try {
+    Logger.log('🚀 Iniciando aplicación...', 'Bootstrap');
+    
+    const app = await NestFactory.create(AppModule, {
+      logger: ['log', 'error', 'warn', 'debug', 'verbose'],
+    });
 
-  const port = process.env.PORT || 8080;
-  const env = process.env.NODE_ENV || 'development';
+    // Habilitar CORS
+    app.enableCors({
+      origin: true,
+      credentials: true,
+    });
 
-  Logger.log(`NODE_ENV = ${env}`, 'Bootstrap');
-  Logger.log(`process.env.PORT = ${process.env.PORT}`, 'Bootstrap');
-  Logger.log(`Servidor escuchando en el puerto ${port}`, 'Bootstrap');
+    const port = parseInt(process.env.PORT || '8080', 10);
+    const env = process.env.NODE_ENV || 'development';
 
-  await app.listen(port, '0.0.0.0');
+    Logger.log(`📌 NODE_ENV = ${env}`, 'Bootstrap');
+    Logger.log(`📌 PORT = ${port}`, 'Bootstrap');
+    Logger.log(`📌 Servidor escuchando en 0.0.0.0:${port}`, 'Bootstrap');
+
+    await app.listen(port, '0.0.0.0');
+    
+    Logger.log(`✅ Aplicación iniciada correctamente en http://0.0.0.0:${port}`, 'Bootstrap');
+  } catch (error) {
+    Logger.error('❌ Error al iniciar el servidor:', error);
+    console.error('Error completo:', error);
+    process.exit(1);
+  }
 }
 
 bootstrap().catch(err => {
-  console.error('Error al iniciar el servidor:', err);
+  Logger.error('❌ Error fatal en bootstrap:', err);
+  console.error('Error completo:', err);
   process.exit(1);
 });
