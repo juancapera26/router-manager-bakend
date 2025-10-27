@@ -11,7 +11,7 @@ Se agregaron las siguientes configuraciones importantes:
 - `--max-instances=10`: Máximo 10 instancias
 - `--cpu=1`: 1 CPU por instancia
 - `--memory=512Mi`: 512MB de RAM
-- `--startup-cpu-boost`: Acelera el inicio de la aplicación
+- `--cpu-boost`: Acelera el inicio de la aplicación
 
 ### 2. **Dockerfile**
 Mejoras implementadas:
@@ -115,7 +115,7 @@ gcloud run deploy router-manager-backend \
   --max-instances=10 \
   --cpu=1 \
   --memory=512Mi \
-  --startup-cpu-boost \
+  --cpu-boost \
   --update-secrets=DATABASE_URL=DATABASE_URL:latest,SMTP_PASS=SMTP_PASS:latest,FIREBASE_CONFIG=FIREBASE_CONFIG:latest,GOOGLE_MAPS_API_KEY=GOOGLE_MAPS_API_KEY:latest,FIREBASE_API_KEY=FIREBASE_API_KEY:latest,FIREBASE_SERVICE_ACCOUNT=FIREBASE_SERVICE_ACCOUNT:latest
 ```
 
