@@ -62,10 +62,10 @@ export class ConductoresController {
   )
   async updateFoto(
     @Param('id') id: string,
-    @UploadedFile() file: Express.MulterFile
+    @UploadedFile() file: Express.Multer.File
   ) {
     if (!file) throw new BadRequestException('No file uploaded');
-    const fotoUrl = `http://localhost:8080/uploads/perfiles/${file.filename}`;
+    const fotoUrl = `http://localhost:3000/uploads/perfiles/${file.filename}`;
     const idNumber = Number(id);
     return this.updateUC.execute(idNumber, {foto_perfil: fotoUrl});
   }

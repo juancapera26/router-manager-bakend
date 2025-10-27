@@ -11,3 +11,6 @@
 !!!IMPORTANTE!!!
 *Edite el servicio de paquetes para que ahi mismo se genere el codigo de rastreo
 *Elimine el trigger de paquetes en la BD ya que no me dejaba crear paquetes
+
+//He actualizado el repositorio de novedades 
+ejecute esta sentencia en la base de datos UPDATE novedades SET tipo = 'Logistica' WHERE tipo = 'Logística';
