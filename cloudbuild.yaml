@@ -1,5 +1,5 @@
 steps:
-  # 1️⃣ Construir imagen Docker (Dockerfile maneja npm install y prisma generate)
+  # 1️⃣ Construir imagen Docker
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - 'build'
@@ -24,7 +24,6 @@ steps:
           --region us-central1 \
           --platform managed \
           --allow-unauthenticated \
-          --port=8080 \
           --update-secrets=DATABASE_URL=DATABASE_URL:latest,SMTP_PASS=SMTP_PASS:latest,FIREBASE_CONFIG=FIREBASE_CONFIG:latest,GOOGLE_MAPS_API_KEY=GOOGLE_MAPS_API_KEY:latest,FIREBASE_API_KEY=FIREBASE_API_KEY:latest,FIREBASE_SERVICE_ACCOUNT=FIREBASE_SERVICE_ACCOUNT:latest
 
 timeout: '900s'
