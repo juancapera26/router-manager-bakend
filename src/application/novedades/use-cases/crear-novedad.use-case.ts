@@ -15,7 +15,7 @@ export class CrearNovedadUseCase {
 
   async execute(
     data: CrearNovedadProps,
-    file: Express.MulterFile | undefined
+    file: Express.Multer.File | undefined
   ): Promise<Novedad> {
     let imagenPath: string | null = null;
 

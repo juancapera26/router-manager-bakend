@@ -1,0 +1,203 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model cliente {
+  id_cliente     Int       @id @default(autoincrement()) @db.UnsignedInt
+  nombre         String    @db.VarChar(30)
+  apellido       String    @db.VarChar(30)
+  direccion      String    @db.VarChar(100)
+  correo         String    @db.VarChar(50)
+  telefono_movil String    @db.VarChar(30)
+  paquete        paquete[]
+}
+
+model empresa {
+  id_empresa       Int       @id @default(autoincrement()) @db.UnsignedInt
+  nit              String    @db.VarChar(30)
+  nombre_empresa   String    @db.VarChar(50)
+  telefono_empresa String    @db.VarChar(30)
+  usuario          usuario[]
+}
+
+model paquete {
+  id_paquete          Int                    @id @default(autoincrement()) @db.UnsignedInt
+  codigo_rastreo      String?                @unique(map: "codigo_rastreo") @db.VarChar(50)
+  fecha_registro      DateTime               @db.Date
+  fecha_entrega       DateTime?              @db.DateTime(0)
+  estado_paquete      paquete_estado_paquete @default(Pendiente)
+  largo               Float                  @db.Float
+  ancho               Float                  @db.Float
+  alto                Float                  @db.Float
+  peso                Float                  @db.Float
+  id_cliente          Int                    @db.UnsignedInt
+  id_ruta             Int?                   @db.UnsignedInt
+  id_barrio           Int?                   @db.UnsignedInt
+  direccion_entrega   String?                @db.VarChar(100)
+  tipo_paquete        paquete_tipo_paquete
+  lat                 Decimal?               @db.Decimal(10, 8)
+  lng                 Decimal?               @db.Decimal(11, 8)
+  valor_declarado     Float                  @db.Float
+  cantidad            Int
+  imagen_entrega      String?                @db.VarChar(255)
+  observacion_entrega String?                @db.Text
+  cliente             cliente                @relation(fields: [id_cliente], references: [id_cliente], map: "paquete_ibfk_1")
+  ruta                ruta?                  @relation(fields: [id_ruta], references: [id_ruta], map: "paquete_ibfk_2")
+  barrio              barrio?                @relation(fields: [id_barrio], references: [id_barrio], map: "paquete_ibfk_3")
+
+  @@index([id_cliente], map: "idx_paquete_id_cliente")
+  @@index([id_barrio], map: "idx_paquete_id_barrio")
+  @@index([id_ruta], map: "idx_paquete_id_ruta")
+  @@index([estado_paquete], map: "idx_paquete_estado")
+}
+
+model rol {
+  id_rol     Int       @id @default(autoincrement()) @db.UnsignedInt
+  nombre_rol String    @db.VarChar(30)
+  usuario    usuario[]
+}
+
+model ruta {
+  id_ruta        Int              @id @default(autoincrement()) @db.UnsignedInt
+  estado_ruta    ruta_estado_ruta @default(Pendiente)
+  fecha_inicio   DateTime         @db.DateTime(0)
+  fecha_fin      DateTime?        @db.DateTime(0)
+  id_conductor   Int?             @db.UnsignedInt
+  id_vehiculo    Int?             @db.UnsignedInt
+  cod_manifiesto String?          @unique(map: "cod_manifiesto") @db.VarChar(50)
+  fecha_creacion DateTime         @default(now()) @db.DateTime(0)
+  paquete        paquete[]
+  usuario        usuario?         @relation(fields: [id_conductor], references: [id_usuario], map: "ruta_ibfk_1")
+  vehiculo       vehiculo?        @relation(fields: [id_vehiculo], references: [id_vehiculo], map: "ruta_ibfk_2")
+
+  @@index([id_conductor], map: "idx_ruta_id_conductor")
+  @@index([id_vehiculo], map: "idx_ruta_id_vehiculo")
+  @@index([estado_ruta], map: "idx_ruta_estado")
+}
+
+model usuario {
+  id_usuario               Int               @id @default(autoincrement()) @db.UnsignedInt
+  correo                   String            @unique(map: "uq_correo") @db.VarChar(255)
+  contrasena               String            @db.VarChar(100)
+  nombre                   String            @db.VarChar(100)
+  apellido                 String            @db.VarChar(100)
+  id_empresa               Int               @db.UnsignedInt
+  telefono_movil           String?           @db.VarChar(30)
+  id_rol                   Int               @db.UnsignedInt
+  tipo_documento           String?           @db.VarChar(30)
+  documento                String?           @db.VarChar(30)
+  uid                      String            @unique(map: "uq_uid") @db.VarChar(50)
+  estado                   usuario_estado    @default(activo)
+  fecha_registro           DateTime          @default(now()) @db.DateTime(0)
+  foto_perfil              String?           @db.VarChar(255)
+  fecha_actualizacion_foto DateTime?         @db.DateTime(0)
+  estado_conductor         estado_conductor?
+  novedades                novedades[]
+  ruta                     ruta[]
+  empresa                  empresa           @relation(fields: [id_empresa], references: [id_empresa], map: "usuario_ibfk_1")
+  rol                      rol               @relation(fields: [id_rol], references: [id_rol], map: "usuario_ibfk_2")
+
+  @@index([id_empresa], map: "idx_usuario_id_empresa")
+  @@index([id_rol], map: "idx_usuario_id_rol")
+}
+
+model vehiculo {
+  id_vehiculo     Int                      @id @default(autoincrement()) @db.UnsignedInt
+  placa           String                   @db.VarChar(30)
+  tipo            vehiculo_tipo            @default(moto)
+  estado_vehiculo vehiculo_estado_vehiculo @default(Disponible)
+  ruta            ruta[]
+}
+
+model barrio {
+  id_barrio     Int       @id @default(autoincrement()) @db.UnsignedInt
+  nombre_barrio String    @db.VarChar(30)
+  id_localidad  Int       @db.UnsignedInt
+  localidad     localidad @relation(fields: [id_localidad], references: [id_localidad], map: "barrio_ibfk_1")
+  paquete       paquete[]
+
+  @@index([id_localidad], map: "idx_barrio_id_localidad")
+}
+
+model localidad {
+  id_localidad     Int      @id @default(autoincrement()) @db.UnsignedInt
+  nombre_localidad String   @db.VarChar(30)
+  barrio           barrio[]
+}
+
+model novedades {
+  id_novedad  Int            @id @default(autoincrement()) @db.UnsignedInt
+  descripcion String         @db.VarChar(100)
+  tipo        novedades_tipo
+  fecha       DateTime       @db.Date
+  id_usuario  Int            @db.UnsignedInt
+  imagen      String?        @db.VarChar(255)
+  usuario     usuario        @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade, map: "novedad_ibfk_1")
+
+  @@index([id_usuario], map: "idx_novedades_id_usuario")
+}
+
+model estado_conductor {
+  id_conductor Int                     @id @db.UnsignedInt
+  estado       estado_conductor_estado @default(Disponible)
+  usuario      usuario                 @relation(fields: [id_conductor], references: [id_usuario], onDelete: Cascade, map: "fk_estado_conductor_id_conductor")
+
+  @@index([estado], map: "idx_estado_conductor_estado")
+}
+
+enum vehiculo_tipo {
+  camioneta
+  moto
+  furgon
+  camion
+}
+
+enum usuario_estado {
+  activo
+  inactivo
+}
+
+enum estado_conductor_estado {
+  Disponible
+  En_ruta       @map("En ruta")
+  No_disponible @map("No disponible")
+}
+
+enum ruta_estado_ruta {
+  Pendiente
+  Asignada
+  En_ruta    @map("En ruta")
+  Completada
+  Fallida
+}
+
+enum vehiculo_estado_vehiculo {
+  Disponible
+  No_disponible @map("No disponible")
+}
+
+enum paquete_estado_paquete {
+  Pendiente
+  Asignado
+  En_ruta   @map("En ruta")
+  Entregado
+  Fallido
+}
+
+enum paquete_tipo_paquete {
+  Grande
+  Mediano
+  Pequeno
+  Refrigerado
+  Fragil
+}
+
+enum novedades_tipo {
+  // Logística @map("Logística")
+  Operativa
+}

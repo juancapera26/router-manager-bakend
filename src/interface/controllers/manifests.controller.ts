@@ -1,8 +1,8 @@
 //src/interface/controllers/manifests.module.ts
-// src/interface/controllers/manifests.module.ts
 import {Controller, Get, Param} from '@nestjs/common';
-import {GetPaquetesUseCase} from '../../application/manifests/use-cases/get-paquetes.use-case';
-import {Paquete} from '../../domain/manifests/entities/paquete.entity';
+import {GetPaquetesUseCase} from 'src/application/manifests/use-cases/get-paquetes.use-case';
+import {Paquete} from 'src/domain/manifests/entities/paquete.entity';
+
 @Controller('api/manifiestos')
 export class ManifestsController {
   constructor(private readonly getPaquetesUseCase: GetPaquetesUseCase) {}

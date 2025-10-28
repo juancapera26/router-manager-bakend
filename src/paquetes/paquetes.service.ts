@@ -3,7 +3,7 @@ import {
   Injectable,
   NotFoundException
 } from '@nestjs/common';
-import {PrismaService} from '../prisma/prisma.service';
+import {PrismaService} from '../../prisma/prisma.service';
 import {CreatePaqueteDto} from '../interface/controllers/dto/create-paquete.dto';
 import {UpdatePaqueteDto} from '../interface/controllers/dto/update-paquete.dto';
 import {AsignarPaqueteDto} from '../interface/controllers/dto/asignar-paquete.dto';

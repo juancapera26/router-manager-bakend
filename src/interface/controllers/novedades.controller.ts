@@ -39,7 +39,7 @@ export class NovedadesController {
     })
   )
   async subirNovedad(
-    @UploadedFile() file: Express.MulterFile,
+    @UploadedFile() file: Express.Multer.File,
     @Body() body: CreateNovedadDto,
     @User('uid') uid?: string
   ) {
