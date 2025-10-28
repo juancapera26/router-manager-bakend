@@ -37,4 +37,4 @@ COPY --from=builder /app/src/prisma ./src/prisma
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
   CMD node -e "require('http').get('http://localhost:8080', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
 
-CMD ["node", "-r", "module-alias/register", "dist/main.js"]
+CMD ["node", "-r", "module-alias/register", "dist/src/main.js"]
