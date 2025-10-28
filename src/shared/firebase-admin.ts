@@ -1,6 +1,5 @@
-// src/shared/firebase-admin.ts
 import * as admin from 'firebase-admin';
-import {readFileSync} from 'fs';
+import {readFileSync, existsSync} from 'fs';
 import {join} from 'path';
 
 let serviceAccount;
@@ -31,9 +30,7 @@ if (process.env.FIREBASE_SERVICE_ACCOUNT) {
 }
 
 admin.initializeApp({
-  credential: admin.credential.cert(
-    JSON.parse(readFileSync(serviceAccountPath, 'utf8'))
-  )
+  credential: admin.credential.cert(serviceAccount)
 });
 
 export {admin};
