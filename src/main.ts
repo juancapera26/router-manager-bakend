@@ -1,43 +1,43 @@
 import {NestFactory} from '@nestjs/core';
 import {AppModule} from './app.module';
-import * as express from 'express';
-import {join} from 'path';
-import {DocumentBuilder, SwaggerModule} from '@nestjs/swagger';
+import {Logger} from '@nestjs/common';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  try {
+    Logger.log('🚀 Iniciando aplicación...', 'Bootstrap');
 
-  // 📁 Servir carpeta "uploads" de forma pública
-  app.use('/uploads', express.static(join(process.cwd(), 'uploads')));
+    const app = await NestFactory.create(AppModule, {
+      logger: ['log', 'error', 'warn', 'debug', 'verbose']
+    });
 
-  // 🌐 Habilitar CORS
-  app.enableCors({
-    origin: true,
-    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true,
-    preflightContinue: false,
-    optionsSuccessStatus: 204
-  });
+    // Habilitar CORS
+    app.enableCors({
+      origin: true,
+      credentials: true
+    });
 
-  // 📘 Configuración Swagger
-  const config = new DocumentBuilder()
-    .setTitle('Route Manager API')
-    .setDescription(
-      'Documentación del backend de logística de rutas y entregas'
-    )
-    .setVersion('1.0')
-    .addBearerAuth()
-    .build();
+    const port = parseInt(process.env.PORT || '8080', 10);
+    const env = process.env.NODE_ENV || 'development';
 
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api/docs', app, document);
+    Logger.log(`📌 NODE_ENV = ${env}`, 'Bootstrap');
+    Logger.log(`📌 PORT = ${port}`, 'Bootstrap');
+    Logger.log(`📌 Servidor escuchando en 0.0.0.0:${port}`, 'Bootstrap');
 
-  // 🚀 Iniciar servidor
-  const port = process.env.PORT || 8080;
-  await app.listen(port, '0.0.0.0');
-  console.log(`✅ Servidor escuchando en el puerto ${port}`);
-  console.log(`📘 Swagger: http://localhost:${port}/api/docs`);
+    await app.listen(port, '0.0.0.0');
+
+    Logger.log(
+      `✅ Aplicación iniciada correctamente en http://0.0.0.0:${port}`,
+      'Bootstrap'
+    );
+  } catch (error) {
+    Logger.error('❌ Error al iniciar el servidor:', error);
+    console.error('Error completo:', error);
+    process.exit(1);
+  }
 }
 
-bootstrap();
+bootstrap().catch(err => {
+  Logger.error('❌ Error fatal en bootstrap:', err);
+  console.error('Error completo:', err);
+  process.exit(1);
+});
