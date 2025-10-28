@@ -1,6 +1,6 @@
 import {Injectable} from '@nestjs/common';
-import {Paquete} from 'src/domain/manifests/entities/paquete.entity';
 import {PrismaManifestRepository} from 'src/infrastructure/persistence/prisma/prisma-manifest.repository';
+import {Paquete} from 'src/domain/manifests/entities/paquete.entity';
 
 @Injectable()
 export class GetPaquetesUseCase {
