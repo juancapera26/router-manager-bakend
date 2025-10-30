@@ -1,12 +1,13 @@
-// src/application/logistica/rutas/use-cases/cambiar-estado-ruta.use-case.ts
 import {Injectable, Inject} from '@nestjs/common';
 import {RutaRepository} from 'src/domain/logistica/rutas/repositories/ruta.repository';
 import {ruta_estado_ruta} from '@prisma/client';
+import {RUTA_REPOSITORY_TOKEN} from 'src/domain/logistica/rutas/tokens/ruta-repository.token';
 
 @Injectable()
 export class CambiarEstadoRutaUseCase {
   constructor(
-    @Inject('RutaRepository') private readonly rutaRepo: RutaRepository
+    @Inject(RUTA_REPOSITORY_TOKEN) // 🔹 usar el símbolo, no una cadena
+    private readonly rutaRepo: RutaRepository
   ) {}
 
   async execute(id_ruta: number, nuevoEstado: ruta_estado_ruta) {

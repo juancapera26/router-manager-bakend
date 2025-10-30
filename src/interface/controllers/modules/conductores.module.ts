@@ -7,6 +7,7 @@ import {ConductorRepositoryToken} from 'src/domain/conductores/tokens/conductor-
 import {GetAllConductoresUseCase} from 'src/application/conductores/use-cases/get-all-conductores.use-case';
 import {DeleteConductorUseCase} from 'src/application/conductores/use-cases/delete-conductor.use-case';
 import {InfrastructureModule} from 'src/infrastructure/infrastructure.module'; // 👈 IMPORTANTE
+import {CambiarEstadoConductorUseCase} from 'src/application/conductores/use-cases/cambiar-estado-conductor.use-case';
 
 @Module({
   imports: [InfrastructureModule], // 👈 Necesario para acceder a FirebaseAuthProvider
@@ -16,11 +17,15 @@ import {InfrastructureModule} from 'src/infrastructure/infrastructure.module'; /
     UpdateConductorUseCase,
     DeleteConductorUseCase,
     GetAllConductoresUseCase,
+    CambiarEstadoConductorUseCase, // <-- AGREGADO
     {
       provide: ConductorRepositoryToken,
       useClass: PrismaConductorRepository
     }
   ],
-  exports: [UpdateConductorUseCase]
+  exports: [
+    UpdateConductorUseCase,
+    CambiarEstadoConductorUseCase // <-- ahora sí se puede exportar
+  ]
 })
 export class ConductoresModule {}

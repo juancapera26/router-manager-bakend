@@ -12,8 +12,11 @@ import {CambiarEstadoRutaUseCase} from 'src/application/logistica/rutas/use-case
 import {CreateRutaDto} from './dto/create-ruta.dto';
 import {CambiarEstadoRutaDto} from './dto/rutas/cambiar-estado-ruta.dto';
 import {CreateRutaUseCase} from 'src/application/logistica/rutas/use-cases/create-ruta.use-case';
-import {DeleteRutaUseCase} from 'src/application/logistica/rutas/use-cases/eliminar-ruta.use-case';
 import {CreateRutaData} from 'src/domain/logistica/rutas/repositories/ruta.repository';
+import {CambiarEstadoConductorUseCase} from 'src/application/conductores/use-cases/cambiar-estado-conductor.use-case';
+import {AsignarConductorUseCase} from 'src/application/logistica/rutas/use-cases/asignar-conductor.use-case';
+import {AsignarConductorDto} from './dto/rutas/asignar-conductor.dto';
+import {EliminarRutaUseCase} from 'src/application/logistica/rutas/use-cases/eliminar-ruta.use-case';
 
 @Controller('rutas')
 export class RutasController {
@@ -21,7 +24,9 @@ export class RutasController {
     private readonly getAllRutasUseCase: GetAllRutasUseCase,
     private readonly cambiarEstadoRutaUseCase: CambiarEstadoRutaUseCase,
     private readonly createRutaUseCase: CreateRutaUseCase,
-    private readonly deleteRutaUseCase: DeleteRutaUseCase
+    private readonly deleteRutaUseCase: EliminarRutaUseCase,
+    private readonly cambiarEstadoConductorUseCase: CambiarEstadoConductorUseCase,
+    private readonly asignarConductorUseCase: AsignarConductorUseCase // <-- agregado
   ) {}
 
   @Get()
@@ -36,6 +41,17 @@ export class RutasController {
   ) {
     const rutaId = Number(id);
     return await this.cambiarEstadoRutaUseCase.execute(rutaId, dto.nuevoEstado);
+  }
+
+  @Patch(':id/asignar-conductor')
+  async asignarConductor(
+    @Param('id') id: string,
+    @Body() dto: AsignarConductorDto
+  ) {
+    const rutaId = Number(id);
+
+    // Usar el UseCase específico para asignar conductor
+    return await this.asignarConductorUseCase.execute(rutaId, dto.id_conductor);
   }
 
   @Post()
@@ -53,7 +69,7 @@ export class RutasController {
   }
 
   @Delete(':id')
-  async delete(@Param('id') id: number) {
+  async delete(@Param('id') id: string) {
     return await this.deleteRutaUseCase.execute(Number(id));
   }
 }

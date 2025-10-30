@@ -58,4 +58,12 @@ export interface RutaRepository {
   // Eliminar
   delete(id: number): Promise<boolean>;
   findById(id: number): Promise<RutaEntity | null>;
+
+  findByCodigoManifiesto(codigo: string): Promise<RutaEntity | null>;
+  findUsuarioByUid(uid: string): Promise<{
+    id_usuario: number;
+    nombre: string;
+    apellido: string;
+    correo: string;
+  } | null>;
 }

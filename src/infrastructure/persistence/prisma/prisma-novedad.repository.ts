@@ -18,8 +18,8 @@ export class PrismaNovedadRepository implements NovedadRepository {
         fecha: data.fecha ?? new Date(),
         imagen: data.imagen ?? null,
         usuario: {
-        connect: { id_usuario: data.id_usuario } // ✅ se alinea con el modelo
-          }
+          connect: {id_usuario: data.id_usuario} // ✅ se alinea con el modelo
+        }
       }
     });
 

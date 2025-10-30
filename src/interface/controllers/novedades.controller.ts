@@ -25,6 +25,7 @@ export class NovedadesController {
     private readonly listarNovedadesUseCase: ListarNovedadesUseCase
   ) {}
 
+  // Subir una novedad
   @Post('subir')
   @UseGuards(FirebaseAuthGuard)
   @UseInterceptors(
@@ -48,15 +49,16 @@ export class NovedadesController {
     const crearData: CrearNovedadProps = {
       descripcion: body.descripcion,
       tipo: body.tipo,
-      id_usuario: Number(uid), // si tu DB espera number
-      uid, // ya incluido en el objeto
-      imagen: undefined // se llenará en el UseCase si hay archivo
+      id_usuario: Number(uid),
+      uid,
+      imagen: undefined
     };
 
     return this.crearNovedadUseCase.execute(crearData, file);
   }
 
-  @Get()
+  // Listar novedades – ruta corregida a 'historial'
+  @Get('historial')
   async listarNovedades() {
     return this.listarNovedadesUseCase.execute();
   }
