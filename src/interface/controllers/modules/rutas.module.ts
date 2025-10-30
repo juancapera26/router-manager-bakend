@@ -4,21 +4,26 @@ import {PrismaService} from 'src/infrastructure/persistence/prisma/prisma.servic
 import {GetAllRutasUseCase} from 'src/application/logistica/rutas/use-cases/get-all-rutas.use-case';
 import {CambiarEstadoRutaUseCase} from 'src/application/logistica/rutas/use-cases/cambiar-estado-ruta.use-case';
 import {CreateRutaUseCase} from 'src/application/logistica/rutas/use-cases/create-ruta.use-case';
-import {DeleteRutaUseCase} from 'src/application/logistica/rutas/use-cases/eliminar-ruta.use-case';
 import {RutasController} from '../rutas.controller';
+import {ConductoresModule} from './conductores.module';
+import {AsignarConductorUseCase} from 'src/application/logistica/rutas/use-cases/asignar-conductor.use-case';
+import {RUTA_REPOSITORY_TOKEN} from 'src/domain/logistica/rutas/tokens/ruta-repository.token';
+import {EliminarRutaUseCase} from 'src/application/logistica/rutas/use-cases/eliminar-ruta.use-case';
 
 @Module({
+  imports: [ConductoresModule],
   controllers: [RutasController],
   providers: [
     PrismaService,
     {
-      provide: 'RutaRepository', // 🔹 clave de la interfaz
+      provide: RUTA_REPOSITORY_TOKEN, // 🔹 clave de la interfaz
       useClass: PrismaRutaRepository // 🔹 implementación concreta
     },
     GetAllRutasUseCase,
     CambiarEstadoRutaUseCase,
     CreateRutaUseCase,
-    DeleteRutaUseCase
+    EliminarRutaUseCase,
+    AsignarConductorUseCase
   ]
 })
 export class RutasModule {}

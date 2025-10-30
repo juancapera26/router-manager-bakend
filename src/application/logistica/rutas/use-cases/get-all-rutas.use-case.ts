@@ -1,11 +1,12 @@
-// src/application/logistica/rutas/use-cases/get-all-rutas.use-case.ts
 import {Injectable, Inject} from '@nestjs/common';
 import {RutaRepository} from 'src/domain/logistica/rutas/repositories/ruta.repository';
+import {RUTA_REPOSITORY_TOKEN} from 'src/domain/logistica/rutas/tokens/ruta-repository.token';
 
 @Injectable()
 export class GetAllRutasUseCase {
   constructor(
-    @Inject('RutaRepository') private readonly rutaRepository: RutaRepository
+    @Inject(RUTA_REPOSITORY_TOKEN)
+    private readonly rutaRepository: RutaRepository
   ) {}
 
   async execute() {

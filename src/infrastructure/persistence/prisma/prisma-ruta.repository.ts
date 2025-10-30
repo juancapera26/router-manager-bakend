@@ -1,4 +1,3 @@
-// src/infrastructure/persistence/prisma/prisma-ruta.repository.ts
 import {Injectable} from '@nestjs/common';
 import {PrismaService} from './prisma.service';
 import {
@@ -54,11 +53,7 @@ export class PrismaRutaRepository implements RutaRepository {
         paquete: {
           include: {
             cliente: true,
-            barrio: {
-              include: {
-                localidad: true
-              }
-            }
+            barrio: {include: {localidad: true}}
           }
         }
       },
@@ -82,22 +77,84 @@ export class PrismaRutaRepository implements RutaRepository {
           }
         },
         vehiculo: true,
-        paquete: true
+        paquete: {
+          include: {
+            cliente: true,
+            barrio: {include: {localidad: true}}
+          }
+        }
       }
     });
     return ruta ? this.mapToEntity(ruta) : null;
   }
 
-  // Actualizar
+  // Actualizar ruta y estado del conductor automáticamente
   async update(id: number, data: Partial<CreateRutaData>): Promise<RutaEntity> {
-    const ruta = await this.prisma.ruta.update({where: {id_ruta: id}, data});
-    return this.mapToEntity(ruta);
+    const rutaActualizada = await this.prisma.ruta.update({
+      where: {id_ruta: id},
+      data
+    });
+
+    // Actualizar estado del conductor según el estado de la ruta
+    if (rutaActualizada.id_conductor) {
+      let estadoConductor: 'Disponible' | 'En_ruta' = 'Disponible';
+      if (
+        rutaActualizada.estado_ruta === 'Asignada' ||
+        rutaActualizada.estado_ruta === 'En_ruta'
+      ) {
+        estadoConductor = 'En_ruta';
+      }
+
+      await this.prisma.estado_conductor.update({
+        where: {id_conductor: rutaActualizada.id_conductor},
+        data: {estado: estadoConductor}
+      });
+    }
+
+    return this.mapToEntity(rutaActualizada);
   }
 
   // Eliminar
   async delete(id: number): Promise<boolean> {
     await this.prisma.ruta.delete({where: {id_ruta: id}});
     return true;
+  }
+  // Obtener ruta por código de manifiesto
+  async findByCodigoManifiesto(codigo: string): Promise<RutaEntity | null> {
+    const ruta = await this.prisma.ruta.findFirst({
+      where: {cod_manifiesto: codigo},
+      include: {
+        usuario: {
+          select: {
+            id_usuario: true,
+            nombre: true,
+            apellido: true,
+            correo: true
+          }
+        },
+        vehiculo: true,
+        paquete: {
+          include: {
+            cliente: true,
+            barrio: {include: {localidad: true}}
+          }
+        }
+      }
+    });
+
+    return ruta ? this.mapToEntity(ruta) : null;
+  }
+
+  async findUsuarioByUid(uid: string) {
+    return this.prisma.usuario.findUnique({
+      where: {uid},
+      select: {
+        id_usuario: true,
+        nombre: true,
+        apellido: true,
+        correo: true
+      }
+    });
   }
 
   // Mapeo de Prisma a entidad
@@ -131,7 +188,18 @@ export class PrismaRutaRepository implements RutaRepository {
         ? ruta.paquete.map((p: any) => ({
             id_paquete: p.id_paquete,
             codigo_rastreo: p.codigo_rastreo,
-            estado_paquete: p.estado_paquete
+            estado_paquete: p.estado_paquete,
+            cantidad: p.cantidad,
+            direccion_entrega: p.direccion_entrega,
+            cliente: p.cliente
+              ? {
+                  id_cliente: p.cliente.id_cliente,
+                  nombre: p.cliente.nombre,
+                  apellido: p.cliente.apellido,
+                  telefono_movil: p.cliente.telefono_movil,
+                  direccion: p.cliente.direccion
+                }
+              : undefined
           }))
         : []
     };
