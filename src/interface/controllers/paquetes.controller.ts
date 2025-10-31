@@ -19,6 +19,7 @@ import {extname} from 'path';
 import {PaquetesService} from '../../paquetes/paquetes.service';
 
 // Repositorio
+import {PrismaPaqueteRepository} from 'src/infrastructure/persistence/prisma/prisma-paquete.repository';
 
 // DTOs
 import {CreatePaqueteDto} from './dto/create-paquete.dto';
@@ -29,7 +30,6 @@ import {RegistrarEntregaDto} from './dto/paquetes/registrar-entrega.dto';
 
 // Tipos Prisma
 import {paquete_estado_paquete} from '@prisma/client';
-import {PrismaPaqueteRepository} from 'src/infrastructure/persistence/prisma/prisma-paquete.repository';
 
 @Controller('paquetes')
 export class PaquetesController {
@@ -37,17 +37,11 @@ export class PaquetesController {
     private readonly paquetesService: PaquetesService,
     private readonly prismaPaqueteRepository: PrismaPaqueteRepository
   ) {}
-
+  
   // Obtener todos los paquetes
   @Get()
   getAll() {
     return this.paquetesService.getAll();
-  }
-
-  // Obtener un paquete por ID
-  @Get(':id')
-  getOne(@Param('id') id: string) {
-    return this.paquetesService.getOne(Number(id));
   }
 
   // Buscar por estado
@@ -56,56 +50,22 @@ export class PaquetesController {
     return this.paquetesService.findByEstado(estado);
   }
 
+  //  Obtener paquetes de una ruta específica
+  @Get('ruta/:id_ruta')
+  findByRuta(@Param('id_ruta') id_ruta: string) {
+    return this.paquetesService.findByRuta(Number(id_ruta));
+  }
+
+  // Obtener un paquete por ID (debe ir al final de los GET para evitar conflictos)
+  @Get(':id')
+  getOne(@Param('id') id: string) {
+    return this.paquetesService.getOne(Number(id));
+  }
+
   // Crear paquete
   @Post()
   create(@Body() dto: CreatePaqueteDto) {
     return this.paquetesService.create(dto);
-  }
-
-  // Actualizar paquete
-  @Put(':id')
-  update(@Param('id') id: string, @Body() dto: UpdatePaqueteDto) {
-    return this.paquetesService.update(Number(id), dto);
-  }
-
-  // Asignar paquete
-  @Put(':id/asignar')
-  asignar(@Param('id') id: string, @Body() dto: AsignarPaqueteDto) {
-    return this.paquetesService.asignar(Number(id), dto);
-  }
-
-  // Reasignar paquete
-  @Put(':id/reasignar')
-  reasignar(@Param('id') id: string, @Body() dto: AsignarPaqueteDto) {
-    return this.paquetesService.reasignar(Number(id), dto);
-  }
-
-  // Cancelar paquete
-  @Put(':id/cancelar')
-  cancelar(@Param('id') id: string) {
-    return this.paquetesService.cancelar(Number(id));
-  }
-
-  // Cambiar estado de paquete
-  @Put(':id/estado')
-  cambiarEstado(@Param('id') id: string, @Body() dto: EstadoPaqueteDto) {
-    return this.paquetesService.cambiarEstado(Number(id), dto);
-  }
-
-  // Eliminar paquete
-  @Delete(':id')
-  delete(@Param('id') id: string) {
-    return this.paquetesService.delete(Number(id));
-  }
-
-  // Reasignar paquete con PATCH (opcional)
-  @Patch(':id/reasignar')
-  reassignPaquete(
-    @Param('id') id: string,
-    @Body('id_conductor') id_conductor: number,
-    @Body('id_ruta') id_ruta: number
-  ) {
-    return this.paquetesService.reasignar(Number(id), {id_ruta, id_conductor});
   }
 
   // Registrar entrega con imagen
@@ -133,7 +93,6 @@ export class PaquetesController {
     const paquete = await this.prismaPaqueteRepository.findById(Number(id));
     if (!paquete) throw new NotFoundException('Paquete no encontrado');
 
-    // Guardar fecha y hora local actual
     const now = new Date();
     const fechaLocal = new Date(
       now.getTime() - now.getTimezoneOffset() * 60000
@@ -144,7 +103,52 @@ export class PaquetesController {
       dto.estado_paquete,
       dto.observacion_entrega,
       imagePath,
-      fechaLocal // <-- fecha y hora correctas
+      fechaLocal
     );
+  }
+  // Actualizar paquete
+  @Put(':id')
+  update(@Param('id') id: string, @Body() dto: UpdatePaqueteDto) {
+    return this.paquetesService.update(Number(id), dto);
+  }
+
+  // Asignar paquete a ruta
+  @Put(':id/asignar')
+  asignar(@Param('id') id: string, @Body() dto: AsignarPaqueteDto) {
+    return this.paquetesService.asignar(Number(id), dto);
+  }
+
+  // Reasignar paquete
+  @Put(':id/reasignar')
+  reasignar(@Param('id') id: string, @Body() dto: AsignarPaqueteDto) {
+    return this.paquetesService.reasignar(Number(id), dto);
+  }
+
+  // Cancelar paquete (quita de ruta y vuelve a Pendiente)
+  @Put(':id/cancelar')
+  cancelar(@Param('id') id: string) {
+    return this.paquetesService.cancelar(Number(id));
+  }
+
+  // Cambiar estado de paquete
+  @Put(':id/estado')
+  cambiarEstado(@Param('id') id: string, @Body() dto: EstadoPaqueteDto) {
+    return this.paquetesService.cambiarEstado(Number(id), dto);
+  }
+
+  // Reasignar paquete con PATCH (alternativa)
+  @Patch(':id/reasignar')
+  reassignPaquete(
+    @Param('id') id: string,
+    @Body('id_conductor') id_conductor: number,
+    @Body('id_ruta') id_ruta: number
+  ) {
+    return this.paquetesService.reasignar(Number(id), {id_ruta, id_conductor});
+  }
+
+  // Eliminar paquete
+  @Delete(':id')
+  delete(@Param('id') id: string) {
+    return this.paquetesService.delete(Number(id));
   }
 }
