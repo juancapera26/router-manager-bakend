@@ -1,13 +1,19 @@
 import {NestFactory} from '@nestjs/core';
 import {AppModule} from './app.module';
+import {NestExpressApplication} from '@nestjs/platform-express';
 import {Logger} from '@nestjs/common';
+import {join} from 'path';
 
 async function bootstrap() {
   try {
     Logger.log('🚀 Iniciando aplicación...', 'Bootstrap');
 
-    const app = await NestFactory.create(AppModule, {
+    const app = await NestFactory.create<NestExpressApplication>(AppModule, {
       logger: ['log', 'error', 'warn', 'debug', 'verbose']
+    });
+
+    app.useStaticAssets(join(process.cwd(), 'uploads'), {
+      prefix: '/uploads/'
     });
 
     // Habilitar CORS
