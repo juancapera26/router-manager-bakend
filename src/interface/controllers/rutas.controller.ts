@@ -13,10 +13,9 @@ import {CreateRutaDto} from './dto/create-ruta.dto';
 import {CambiarEstadoRutaDto} from './dto/rutas/cambiar-estado-ruta.dto';
 import {CreateRutaUseCase} from 'src/application/logistica/rutas/use-cases/create-ruta.use-case';
 import {CreateRutaData} from 'src/domain/logistica/rutas/repositories/ruta.repository';
-import {CambiarEstadoConductorUseCase} from 'src/application/conductores/use-cases/cambiar-estado-conductor.use-case';
+import {EliminarRutaUseCase} from 'src/application/logistica/rutas/use-cases/eliminar-ruta.use-case';
 import {AsignarConductorUseCase} from 'src/application/logistica/rutas/use-cases/asignar-conductor.use-case';
 import {AsignarConductorDto} from './dto/rutas/asignar-conductor.dto';
-import {EliminarRutaUseCase} from 'src/application/logistica/rutas/use-cases/eliminar-ruta.use-case';
 
 @Controller('rutas')
 export class RutasController {
@@ -25,9 +24,27 @@ export class RutasController {
     private readonly cambiarEstadoRutaUseCase: CambiarEstadoRutaUseCase,
     private readonly createRutaUseCase: CreateRutaUseCase,
     private readonly deleteRutaUseCase: EliminarRutaUseCase,
-    private readonly cambiarEstadoConductorUseCase: CambiarEstadoConductorUseCase,
-    private readonly asignarConductorUseCase: AsignarConductorUseCase // <-- agregado
+    private readonly asignarConductorUseCase: AsignarConductorUseCase
   ) {}
+
+  // Función para generar un código de manifiesto aleatorio (3 letras + 3 números)
+  private generarCodigoManifiesto(): string {
+    const letras = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+    const numeros = '0123456789';
+    let codigo = '';
+
+    // Generar 3 letras aleatorias
+    for (let i = 0; i < 3; i++) {
+      codigo += letras.charAt(Math.floor(Math.random() * letras.length));
+    }
+
+    // Generar 3 números aleatorios
+    for (let i = 0; i < 3; i++) {
+      codigo += numeros.charAt(Math.floor(Math.random() * numeros.length));
+    }
+
+    return codigo;
+  }
 
   @Get()
   async getAll() {
@@ -50,7 +67,22 @@ export class RutasController {
   ) {
     const rutaId = Number(id);
 
-    // Usar el UseCase específico para asignar conductor
+    // Obtener la ruta a asignar
+    const rutas = await this.getAllRutasUseCase.execute();
+    const rutaSeleccionada = rutas.find(r => r.id_ruta === rutaId);
+
+    if (!rutaSeleccionada) {
+      throw new Error('Ruta no encontrada');
+    }
+
+    // Validar que la ruta esté en estado "Pendiente"
+    if (rutaSeleccionada.estado_ruta !== 'Pendiente') {
+      throw new Error(
+        'Solo las rutas en estado "Pendiente" pueden ser asignadas'
+      );
+    }
+
+    // Llamar al UseCase para asignar el conductor
     return await this.asignarConductorUseCase.execute(rutaId, dto.id_conductor);
   }
 
@@ -58,11 +90,10 @@ export class RutasController {
   async create(@Body() dto: CreateRutaDto) {
     const data: CreateRutaData = {
       estado_ruta: dto.ruta_estado ?? 'Pendiente',
-      fecha_inicio: dto.fecha_inicio ? new Date(dto.fecha_inicio) : new Date(),
-      fecha_fin: dto.fecha_fin ? new Date(dto.fecha_fin) : null,
-      id_conductor: dto.id_conductor,
-      id_vehiculo: dto.id_vehiculo,
-      cod_manifiesto: dto.cod_manifiesto ?? null
+      fecha_fin: null, // Fecha de fin no proporcionada
+      id_conductor: null, // No es obligatorio
+      id_vehiculo: null, // No es obligatorio
+      cod_manifiesto: this.generarCodigoManifiesto() // Generamos un código aleatorio (3 letras + 3 números)
     };
 
     return await this.createRutaUseCase.execute(data);

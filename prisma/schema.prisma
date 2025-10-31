@@ -65,7 +65,7 @@ model rol {
 model ruta {
   id_ruta        Int              @id @default(autoincrement()) @db.UnsignedInt
   estado_ruta    ruta_estado_ruta @default(Pendiente)
-  fecha_inicio   DateTime         @db.DateTime(0)
+  fecha_inicio   DateTime?        @db.DateTime(0)
   fecha_fin      DateTime?        @db.DateTime(0)
   id_conductor   Int?             @db.UnsignedInt
   id_vehiculo    Int?             @db.UnsignedInt
@@ -198,6 +198,6 @@ enum paquete_tipo_paquete {
 }
 
 enum novedades_tipo {
-  // Logística @map("Logística")
+  Log_stica @map("Logística")
   Operativa
 }

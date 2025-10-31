@@ -89,7 +89,17 @@ export class PrismaRutaRepository implements RutaRepository {
   }
 
   // Actualizar ruta y estado del conductor automáticamente
+  // Actualizar ruta y estado del conductor automáticamente
   async update(id: number, data: Partial<CreateRutaData>): Promise<RutaEntity> {
+    // Asegúrate de que los valores sean enteros antes de la actualización
+    if (data.id_conductor) {
+      data.id_conductor = parseInt(data.id_conductor.toString(), 10);
+    }
+
+    if (data.id_vehiculo) {
+      data.id_vehiculo = parseInt(data.id_vehiculo.toString(), 10);
+    }
+
     const rutaActualizada = await this.prisma.ruta.update({
       where: {id_ruta: id},
       data
