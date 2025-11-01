@@ -15,6 +15,8 @@ import {FileInterceptor} from '@nestjs/platform-express';
 import {diskStorage} from 'multer';
 import {extname} from 'path';
 
+//controlador
+
 // Servicios
 import {PaquetesService} from '../../paquetes/paquetes.service';
 
