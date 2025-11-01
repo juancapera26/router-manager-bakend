@@ -3,6 +3,8 @@ import { IsString, IsNumber, IsOptional, IsEnum, ValidateNested, IsEmail } from 
 import { Type } from 'class-transformer';
 import { paquete_tipo_paquete } from '@prisma/client';
 
+//dto crear paquete1
+
 // ✅ DTO para el destinatario (coincide con el frontend)
 class DestinatarioDto {
   @IsString()

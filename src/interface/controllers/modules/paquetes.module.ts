@@ -4,6 +4,7 @@ import {PaquetesService} from '../../../paquetes/paquetes.service';
 import {PrismaPaqueteRepository} from 'src/infrastructure/persistence/prisma/prisma-paquete.repository';
 import {ClientesModule} from 'src/clientes/clientes.module';
 import {PrismaService} from 'src/infrastructure/persistence/prisma/prisma.service';
+//modulo1
 
 @Module({
   imports: [ClientesModule],
