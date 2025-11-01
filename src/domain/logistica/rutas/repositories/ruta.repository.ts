@@ -3,7 +3,7 @@ import {ruta_estado_ruta} from '@prisma/client';
 
 export interface CreateRutaData {
   estado_ruta: ruta_estado_ruta;
-  fecha_inicio?: Date;
+  fecha_inicio: Date;
   fecha_fin?: Date | null;
   id_conductor?: number | null;
   id_vehiculo?: number | null;

@@ -87,6 +87,7 @@ export class RutasController {
   async create(@Body() dto: CreateRutaDto) {
     const data: CreateRutaData = {
       estado_ruta: dto.ruta_estado ?? 'Pendiente',
+      fecha_inicio: new Date(), // Fecha de inicio actual
       fecha_fin: null, // Fecha de fin no proporcionada
       id_conductor: null, // No es obligatorio
       id_vehiculo: null, // No es obligatorio
