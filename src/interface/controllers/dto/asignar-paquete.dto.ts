@@ -1,5 +1,5 @@
 import { IsNumber, IsOptional } from 'class-validator';
-// dto/asignar-paquete.dto.ts
+// dto/asignar-paquete.dto.ts1
 
 export class AsignarPaqueteDto {
   @IsNumber()

@@ -10,7 +10,7 @@ import {AsignarPaqueteDto} from '../interface/controllers/dto/asignar-paquete.dt
 import {EstadoPaqueteDto} from '../interface/controllers/dto/estado-paquete.dto';
 import {ClientesService} from '../clientes/clientes.service';
 import {paquete_estado_paquete} from '@prisma/client';
-//servicio
+//servicio1
 @Injectable()
 export class PaquetesService {
   constructor(

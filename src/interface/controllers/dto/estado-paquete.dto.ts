@@ -1,7 +1,7 @@
 import { IsEnum } from 'class-validator';
 import { paquete_estado_paquete } from '@prisma/client';
 
-// dto/estado-paquete.dto.ts
+// dto/estado-paquete.dto.ts1
 
 export class EstadoPaqueteDto {
   @IsEnum(paquete_estado_paquete)
