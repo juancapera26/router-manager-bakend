@@ -33,12 +33,9 @@ export class RutasController {
     const numeros = '0123456789';
     let codigo = '';
 
-    // Generar 3 letras aleatorias
     for (let i = 0; i < 3; i++) {
       codigo += letras.charAt(Math.floor(Math.random() * letras.length));
     }
-
-    // Generar 3 números aleatorios
     for (let i = 0; i < 3; i++) {
       codigo += numeros.charAt(Math.floor(Math.random() * numeros.length));
     }
