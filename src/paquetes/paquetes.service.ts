@@ -1,3 +1,5 @@
+// src/paquetes/paquetes.service.ts
+
 import {
   BadRequestException,
   Injectable,
@@ -10,7 +12,7 @@ import {AsignarPaqueteDto} from '../interface/controllers/dto/asignar-paquete.dt
 import {EstadoPaqueteDto} from '../interface/controllers/dto/estado-paquete.dto';
 import {ClientesService} from '../clientes/clientes.service';
 import {paquete_estado_paquete} from '@prisma/client';
-//servicio1
+
 @Injectable()
 export class PaquetesService {
   constructor(
@@ -25,15 +27,15 @@ export class PaquetesService {
   }
 
   async getOne(id: number) {
-  return this.prisma.paquete.findUnique({
-    where: { id_paquete: id },
-    include: {
-      cliente: true,
-      ruta: true,
-      barrio: true
-    }
-  });
-}
+    return this.prisma.paquete.findUnique({
+      where: { id_paquete: id },
+      include: {
+        cliente: true,
+        ruta: true,
+        barrio: true
+      }
+    });
+  }
 
   async create(dto: CreatePaqueteDto) {
     const nuevoCliente = await this.prisma.cliente.create({
@@ -122,51 +124,114 @@ export class PaquetesService {
     });
   }
 
-  // Operaciones adicionales
+  // ========== OPERACIONES ADICIONALES ==========
+
   async asignar(id: number, dto: AsignarPaqueteDto) {
+    console.log('🎯 === MÉTODO ASIGNAR LLAMADO ===');
+    console.log('📦 ID del paquete:', id);
+    console.log('📄 DTO recibido:', JSON.stringify(dto, null, 2));
+
+    // ← NUEVO: Validar que venga id_ruta O cod_manifiesto
+    if (!dto.id_ruta && !dto.cod_manifiesto) {
+      throw new BadRequestException('Se requiere id_ruta o cod_manifiesto');
+    }
+
+    // Buscar el paquete
     const paquete = await this.prisma.paquete.findUnique({
       where: {id_paquete: id}
     });
-    if (!paquete) throw new NotFoundException('Paquete no encontrado');
+
+    if (!paquete) {
+      throw new NotFoundException('Paquete no encontrado');
+    }
+
+    console.log('✅ Paquete encontrado:', paquete.id_paquete, 'Estado:', paquete.estado_paquete);
 
     if (paquete.estado_paquete !== 'Pendiente') {
       throw new BadRequestException(
-        `El paquete ya esta en estado ${paquete.estado_paquete}`
+        `El paquete ya está en estado ${paquete.estado_paquete}`
       );
     }
 
-    const ruta = await this.prisma.ruta.findUnique({
-      where: {id_ruta: dto.id_ruta}
-    });
-    if (!ruta) {
-      throw new NotFoundException('Ruta no encontrada');
+    // ← NUEVO: Buscar ruta por id_ruta O cod_manifiesto
+    let ruta;
+    
+    if (dto.cod_manifiesto) {
+      console.log('🔍 Buscando ruta por cod_manifiesto:', dto.cod_manifiesto);
+      ruta = await this.prisma.ruta.findUnique({
+        where: {cod_manifiesto: dto.cod_manifiesto}
+      });
+    } else if (dto.id_ruta) {
+      console.log('🔍 Buscando ruta por id_ruta:', dto.id_ruta);
+      ruta = await this.prisma.ruta.findUnique({
+        where: {id_ruta: dto.id_ruta}
+      });
     }
+
+    if (!ruta) {
+      // ← NUEVO: Debug para ver qué rutas existen
+      const todasLasRutas = await this.prisma.ruta.findMany();
+      console.log('📋 Rutas existentes:', todasLasRutas.map(r => ({
+        id: r.id_ruta,
+        codigo: r.cod_manifiesto,
+        estado: r.estado_ruta
+      })));
+      
+      throw new NotFoundException(
+        dto.cod_manifiesto 
+          ? `Ruta con código ${dto.cod_manifiesto} no encontrada`
+          : `Ruta con ID ${dto.id_ruta} no encontrada`
+      );
+    }
+
+    console.log('✅ Ruta encontrada:', {
+      id_ruta: ruta.id_ruta,
+      cod_manifiesto: ruta.cod_manifiesto,
+      estado: ruta.estado_ruta
+    });
 
     if (ruta.estado_ruta !== 'Pendiente') {
       throw new BadRequestException(
-        `La ruta no está disponible para asignación. Estado actual: ${ruta.estado_ruta}`
+        `La ruta no está disponible. Estado actual: ${ruta.estado_ruta}`
       );
     }
 
-    return this.prisma.paquete.update({
+    // ← IMPORTANTE: Siempre asignar usando id_ruta (relación interna de BD)
+    console.log('🔄 Asignando paquete', id, 'a ruta', ruta.id_ruta);
+    
+    const paqueteActualizado = await this.prisma.paquete.update({
       where: {id_paquete: id},
       data: {
-        id_ruta: dto.id_ruta,
+        id_ruta: ruta.id_ruta, // ← Siempre usar id_ruta para la relación
         estado_paquete: 'Asignado'
       },
-      include: {cliente: true, ruta: true, barrio: true}
+      include: {
+        cliente: true,
+        ruta: true,
+        barrio: true
+      }
     });
+
+    console.log('✅ Paquete asignado exitosamente');
+    
+    return paqueteActualizado;
   }
 
   async reasignar(id: number, dto: AsignarPaqueteDto) {
+    console.log('🔄 Reasignando paquete:', id, 'DTO:', dto);
     return this.asignar(id, dto);
   }
 
   async cancelar(id: number) {
+    console.log('❌ Cancelando asignación del paquete:', id);
+    
     const paquete = await this.prisma.paquete.findUnique({
       where: {id_paquete: id}
     });
-    if (!paquete) throw new NotFoundException('Paquete no encontrado');
+
+    if (!paquete) {
+      throw new NotFoundException('Paquete no encontrado');
+    }
 
     return this.prisma.paquete.update({
       where: {id_paquete: id},
@@ -182,7 +247,10 @@ export class PaquetesService {
     const paquete = await this.prisma.paquete.findUnique({
       where: {id_paquete: id}
     });
-    if (!paquete) throw new NotFoundException('Paquete no encontrado');
+
+    if (!paquete) {
+      throw new NotFoundException('Paquete no encontrado');
+    }
 
     if (paquete.estado_paquete === 'Entregado' && dto.estado !== 'Entregado') {
       throw new BadRequestException(
@@ -203,6 +271,7 @@ export class PaquetesService {
       include: {cliente: true, ruta: true, barrio: true}
     });
   }
+
   async findByRuta(id_ruta: number) {
     return this.prisma.paquete.findMany({
       where: {id_ruta},
@@ -215,5 +284,43 @@ export class PaquetesService {
         fecha_registro: 'desc'
       }
     });
+  }
+
+  async getRutasDisponibles() {
+    try {
+      console.log('🔍 Buscando rutas disponibles...');
+
+      const rutas = await this.prisma.ruta.findMany({
+        where: {
+          estado_ruta: 'Pendiente'
+        },
+        include: {
+          _count: {
+            select: {
+              paquete: true
+            }
+          }
+        },
+        orderBy: {
+          id_ruta: 'desc'
+        }
+      });
+
+      console.log('✅ Rutas en estado Pendiente:', rutas.length);
+      
+      if (rutas.length > 0) {
+        console.log('📦 Rutas:', rutas.map(r => ({
+          id: r.id_ruta,
+          codigo: r.cod_manifiesto,
+          estado: r.estado_ruta,
+          paquetes: r._count.paquete
+        })));
+      }
+
+      return rutas;
+    } catch (error) {
+      console.error('❌ Error en getRutasDisponibles:', error);
+      throw error;
+    }
   }
 }

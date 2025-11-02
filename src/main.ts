@@ -2,7 +2,7 @@ import {NestFactory} from '@nestjs/core';
 import {AppModule} from './app.module';
 import {NestExpressApplication} from '@nestjs/platform-express';
 import {Logger} from '@nestjs/common';
-import {join} from 'path';
+import { join } from 'path';
 
 async function bootstrap() {
   try {
@@ -21,6 +21,10 @@ async function bootstrap() {
       origin: true,
       credentials: true
     });
+
+    app.useStaticAssets(join(__dirname, '..', 'uploads'),{
+      prefix: '/uploads/',
+    })
 
     const port = parseInt(process.env.PORT || '8080', 10);
     const env = process.env.NODE_ENV || 'development';
