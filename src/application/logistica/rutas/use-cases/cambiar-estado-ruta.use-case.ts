@@ -6,7 +6,7 @@ import {RUTA_REPOSITORY_TOKEN} from 'src/domain/logistica/rutas/tokens/ruta-repo
 @Injectable()
 export class CambiarEstadoRutaUseCase {
   constructor(
-    @Inject(RUTA_REPOSITORY_TOKEN) // 🔹 usar el símbolo, no una cadena
+    @Inject(RUTA_REPOSITORY_TOKEN)
     private readonly rutaRepo: RutaRepository
   ) {}
 
@@ -16,10 +16,10 @@ export class CambiarEstadoRutaUseCase {
     );
     if (!ruta) throw new Error('Ruta no encontrada');
 
+    // 🔹 Nuevo flujo reducido
     const flujoValido: Record<string, string[]> = {
       Pendiente: ['Asignada'],
-      Asignada: ['En_ruta', 'Fallida'],
-      En_ruta: ['Completada', 'Fallida'],
+      Asignada: ['Completada', 'Fallida'],
       Completada: [],
       Fallida: []
     };
@@ -30,6 +30,7 @@ export class CambiarEstadoRutaUseCase {
       );
     }
 
+    // 🔹 Actualiza la ruta
     return this.rutaRepo.update(id_ruta, {estado_ruta: nuevoEstado});
   }
 }

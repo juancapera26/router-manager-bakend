@@ -2,7 +2,8 @@ import {NestFactory} from '@nestjs/core';
 import {AppModule} from './app.module';
 import {NestExpressApplication} from '@nestjs/platform-express';
 import {Logger} from '@nestjs/common';
-import { join } from 'path';
+import {join} from 'path';
+import {DocumentBuilder, SwaggerModule} from '@nestjs/swagger';
 
 async function bootstrap() {
   try {
@@ -12,7 +13,11 @@ async function bootstrap() {
       logger: ['log', 'error', 'warn', 'debug', 'verbose']
     });
 
+    // Carpeta de archivos estáticos
     app.useStaticAssets(join(process.cwd(), 'uploads'), {
+      prefix: '/uploads/'
+    });
+    app.useStaticAssets(join(__dirname, '..', 'uploads'), {
       prefix: '/uploads/'
     });
 
@@ -22,9 +27,20 @@ async function bootstrap() {
       credentials: true
     });
 
-    app.useStaticAssets(join(__dirname, '..', 'uploads'),{
-      prefix: '/uploads/',
-    })
+    // Solo habilitar Swagger en desarrollo
+    if (process.env.NODE_ENV !== 'production') {
+      const config = new DocumentBuilder()
+        .setTitle('Router Manager API')
+        .setDescription('Documentación de la API')
+        .setVersion('1.0')
+        .addBearerAuth()
+        .build();
+
+      const document = SwaggerModule.createDocument(app, config);
+      SwaggerModule.setup('swagger', app, document);
+
+      Logger.log('📄 Swagger habilitado en /swagger', 'Bootstrap');
+    }
 
     const port = parseInt(process.env.PORT || '8080', 10);
     const env = process.env.NODE_ENV || 'development';

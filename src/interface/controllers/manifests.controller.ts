@@ -26,35 +26,36 @@ export class ManifestsController {
   async getPaquetes(
     @Param('codigo') codigo: string,
     @User() user: any
-  ): Promise<{codigo: string; paquetes: Paquete[]}> {
-    // 🔹 Buscar la ruta asociada al código de manifiesto
+  ): Promise<{
+    codigo: string;
+    paquetes: Paquete[];
+    estado_ruta: string;
+    vehiculo: string;
+  }> {
     const ruta = await this.rutasRepository.findByCodigoManifiesto(codigo);
 
     if (!ruta) {
       throw new ForbiddenException('Ruta no encontrada para este manifiesto');
     }
 
-    // 🔹 Buscar el usuario en la base de datos por UID de Firebase
+    //  Buscar el usuario en la base de datos por UID de Firebase
     const usuario = await this.rutasRepository.findUsuarioByUid(user.uid);
 
     if (!usuario) {
       throw new ForbiddenException('Usuario no encontrado en la base de datos');
     }
 
-    // 🔹 Depurar valores
-    console.log('UID Firebase:', user.uid);
-    console.log('Usuario DB:', usuario);
-    console.log('ID conductor de la ruta:', ruta.id_conductor);
-
-    // 🔹 Validar que el usuario logueado es el conductor asignado
+    // Validar que el usuario logueado es el conductor asignado
     if (ruta.id_conductor !== usuario.id_usuario) {
       throw new ForbiddenException(
         'No tienes permiso para ver los paquetes de esta ruta'
       );
     }
 
-    // 🔹 Obtener paquetes del manifiesto
-    const paquetes = await this.getPaquetesUseCase.execute(codigo);
-    return {codigo, paquetes};
+    const {paquetes, estado_ruta, vehiculo} =
+      await this.getPaquetesUseCase.execute(codigo);
+
+    // 🔹 Retornar
+    return {codigo, paquetes, estado_ruta, vehiculo};
   }
 }

@@ -6,7 +6,9 @@ import {Paquete} from 'src/domain/manifests/entities/paquete.entity';
 export class GetPaquetesUseCase {
   constructor(private readonly manifestRepo: PrismaManifestRepository) {}
 
-  async execute(codigo: string): Promise<Paquete[]> {
+  async execute(
+    codigo: string
+  ): Promise<{paquetes: Paquete[]; estado_ruta: string; vehiculo: string}> {
     return this.manifestRepo.getPaquetesPorManifiesto(codigo);
   }
 }

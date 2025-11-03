@@ -6,11 +6,11 @@ import {Paquete} from 'src/domain/manifests/entities/paquete.entity';
 export class PrismaManifestRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getPaquetesPorManifiesto(codigo: string): Promise<Paquete[]> {
+  async getPaquetesPorManifiesto(
+    codigo: string
+  ): Promise<{paquetes: Paquete[]; estado_ruta: string; vehiculo: string}> {
     const paquetes = await this.prisma.paquete.findMany({
-      where: {
-        ruta: {cod_manifiesto: codigo}
-      },
+      where: {ruta: {cod_manifiesto: codigo}},
       select: {
         id_paquete: true,
         codigo_rastreo: true,
@@ -29,11 +29,23 @@ export class PrismaManifestRepository {
         lat: true,
         lng: true,
         valor_declarado: true,
-        cantidad: true
+        cantidad: true,
+        ruta: {
+          select: {
+            estado_ruta: true,
+            vehiculo: {select: {tipo: true}} // <-- aquí traemos el tipo
+          }
+        }
       }
     });
 
-    return paquetes.map(
+    if (paquetes.length === 0)
+      return {paquetes: [], estado_ruta: '', vehiculo: ''};
+
+    const estado_ruta = paquetes[0].ruta?.estado_ruta || '';
+    const vehiculo = paquetes[0].ruta?.vehiculo?.tipo || '';
+
+    const paquetesEntity = paquetes.map(
       p =>
         new Paquete({
           id_paquete: p.id_paquete,
@@ -48,7 +60,7 @@ export class PrismaManifestRepository {
           id_cliente: p.id_cliente,
           id_ruta: p.id_ruta,
           id_barrio: p.id_barrio,
-          direccion: p.direccion_entrega, // 👈 lo mantienes como "direccion" en tu entity
+          direccion: p.direccion_entrega,
           tipo_paquete: p.tipo_paquete,
           lat: p.lat ? Number(p.lat) : undefined,
           lng: p.lng ? Number(p.lng) : undefined,
@@ -56,5 +68,7 @@ export class PrismaManifestRepository {
           cantidad: p.cantidad
         })
     );
+
+    return {paquetes: paquetesEntity, estado_ruta, vehiculo};
   }
 }

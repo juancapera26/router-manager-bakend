@@ -39,7 +39,7 @@ export class PaquetesController {
     private readonly paquetesService: PaquetesService,
     private readonly prismaPaqueteRepository: PrismaPaqueteRepository
   ) {}
-  
+
   // Obtener todos los paquetes
   @Get()
   getAll() {
