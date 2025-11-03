@@ -58,6 +58,12 @@ export class PaquetesController {
     return this.paquetesService.findByRuta(Number(id_ruta));
   }
 
+  @Get('rutas-disponibles')
+  async getRutasDisponibles() {
+    console.log(' Endpoint /paquetes/rutas-disponibles');
+    return this.paquetesService.getRutasDisponibles();
+  }
+
   // Obtener un paquete por ID (debe ir al final de los GET para evitar conflictos)
   @Get(':id')
   getOne(@Param('id') id: string) {

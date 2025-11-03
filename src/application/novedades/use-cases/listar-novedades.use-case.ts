@@ -1,6 +1,6 @@
-import {Inject, Injectable} from '@nestjs/common';
-import {NovedadRepositoryToken} from '../../../domain/novedades/tokens/novedad-repository.token';
-import {NovedadRepository} from '../../../domain/novedades/repositories/novedad.repository';
+// application/novedades/use-cases/listar-novedades.use-case.ts
+import { Injectable } from '@nestjs/common';
+import { NovedadesService } from '../../../rutas/novedades/novedades.service';
 
 export interface NovedadFrontend {
   id_novedad: number;
@@ -11,33 +11,30 @@ export interface NovedadFrontend {
   usuario: {
     nombre: string;
     apellido: string;
-    correo: string;
   };
 }
 
 @Injectable()
 export class ListarNovedadesUseCase {
   constructor(
-    @Inject(NovedadRepositoryToken)
-    private readonly novedadesRepo: NovedadRepository
+    private readonly novedadesService: NovedadesService
   ) {}
 
   async execute(): Promise<NovedadFrontend[]> {
-    const novedades = await this.novedadesRepo.listar(); // Aquí novedades es Novedad[]
+    console.log('📋 UseCase: Ejecutando listarNovedades');
+    const novedades = await this.novedadesService.listarNovedades();
+    console.log('📋 UseCase: Novedades recibidas:', novedades.length);
 
-    // Mapea propiedades correctamente
+    // Mapea las novedades al formato esperado por el frontend
     return novedades.map(n => ({
-      id_novedad: (n as any).id ?? 0, // Si tu entidad tiene `id` en vez de `id_novedad`
-      descripcion: n.descripcion ?? '',
-      tipo: n.tipo ?? 'otro',
-      fecha: n.fecha
-        ? new Date(n.fecha).toISOString()
-        : new Date().toISOString(),
+      id_novedad: n.id_novedad,
+      descripcion: n.descripcion,
+      tipo: n.tipo,
+      fecha: new Date(n.fecha).toISOString(),
       imagen: n.imagen ?? null,
       usuario: {
-        nombre: (n as any).usuario?.nombre ?? '', // Asegúrate que el repo traiga usuario
-        apellido: (n as any).usuario?.apellido ?? '',
-        correo: (n as any).usuario?.correo ?? ''
+        nombre: n.usuario?.nombre ?? '',
+        apellido: n.usuario?.apellido ?? '',
       }
     }));
   }

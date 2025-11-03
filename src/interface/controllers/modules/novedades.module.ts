@@ -6,13 +6,20 @@ import {NovedadRepositoryToken} from 'src/domain/novedades/tokens/novedad-reposi
 import {PrismaNovedadRepository} from 'src/infrastructure/persistence/prisma/prisma-novedad.repository';
 import {NovedadesController} from '../novedades.controller';
 import {PrismaService} from 'prisma/prisma.service';
+import { NovedadesService } from 'src/rutas/novedades/novedades.service';
+import { ObtenerNovedadUseCase } from 'src/application/novedades/use-cases/obtener-novedades.use-case';
+import { EliminarNovedadUseCase } from 'src/application/novedades/use-cases/eliminar-novedad.use-case';
 
 @Module({
   imports: [PrismaModule],
   controllers: [NovedadesController],
   providers: [
+    NovedadesService,
+    ObtenerNovedadUseCase,
+    EliminarNovedadUseCase,
     CrearNovedadUseCase,
     ListarNovedadesUseCase,
+    PrismaService,
     {
       provide: NovedadRepositoryToken,
       useFactory: (prisma: PrismaService) =>
