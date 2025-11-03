@@ -28,7 +28,7 @@ export class PaquetesService {
 
   async getOne(id: number) {
     return this.prisma.paquete.findUnique({
-      where: { id_paquete: id },
+      where: {id_paquete: id},
       include: {
         cliente: true,
         ruta: true,
@@ -58,14 +58,14 @@ export class PaquetesService {
         cantidad: dto.cantidad,
         valor_declarado: dto.valor_declarado,
         id_cliente: nuevoCliente.id_cliente,
-        
+
         direccion_entrega: dto.direccion_entrega || dto.destinatario.direccion,
         lat: dto.lat,
         lng: dto.lng,
         id_barrio: dto.id_barrio,
 
         estado_paquete: 'Pendiente',
-        fecha_registro: new Date(),
+        fecha_registro: new Date()
       },
       include: {
         cliente: true,
@@ -95,11 +95,13 @@ export class PaquetesService {
     if (dto.ancho !== undefined) data.ancho = dto.ancho;
     if (dto.alto !== undefined) data.alto = dto.alto;
     if (dto.peso !== undefined) data.peso = dto.peso;
-    
+
     if (dto.tipo_paquete !== undefined) data.tipo_paquete = dto.tipo_paquete;
-    if (dto.valor_declarado !== undefined) data.valor_declarado = dto.valor_declarado;
+    if (dto.valor_declarado !== undefined)
+      data.valor_declarado = dto.valor_declarado;
     if (dto.cantidad !== undefined) data.cantidad = dto.cantidad;
-    if (dto.direccion_entrega !== undefined) data.direccion_entrega = dto.direccion_entrega;
+    if (dto.direccion_entrega !== undefined)
+      data.direccion_entrega = dto.direccion_entrega;
     if (dto.id_ruta !== undefined) data.id_ruta = dto.id_ruta;
     if (dto.id_barrio !== undefined) data.id_barrio = dto.id_barrio;
     if (dto.lat !== undefined) data.lat = dto.lat;
@@ -145,7 +147,12 @@ export class PaquetesService {
       throw new NotFoundException('Paquete no encontrado');
     }
 
-    console.log('✅ Paquete encontrado:', paquete.id_paquete, 'Estado:', paquete.estado_paquete);
+    console.log(
+      '✅ Paquete encontrado:',
+      paquete.id_paquete,
+      'Estado:',
+      paquete.estado_paquete
+    );
 
     if (paquete.estado_paquete !== 'Pendiente') {
       throw new BadRequestException(
@@ -155,7 +162,7 @@ export class PaquetesService {
 
     // ← NUEVO: Buscar ruta por id_ruta O cod_manifiesto
     let ruta;
-    
+
     if (dto.cod_manifiesto) {
       console.log('🔍 Buscando ruta por cod_manifiesto:', dto.cod_manifiesto);
       ruta = await this.prisma.ruta.findUnique({
@@ -171,14 +178,17 @@ export class PaquetesService {
     if (!ruta) {
       // ← NUEVO: Debug para ver qué rutas existen
       const todasLasRutas = await this.prisma.ruta.findMany();
-      console.log('📋 Rutas existentes:', todasLasRutas.map(r => ({
-        id: r.id_ruta,
-        codigo: r.cod_manifiesto,
-        estado: r.estado_ruta
-      })));
-      
+      console.log(
+        '📋 Rutas existentes:',
+        todasLasRutas.map(r => ({
+          id: r.id_ruta,
+          codigo: r.cod_manifiesto,
+          estado: r.estado_ruta
+        }))
+      );
+
       throw new NotFoundException(
-        dto.cod_manifiesto 
+        dto.cod_manifiesto
           ? `Ruta con código ${dto.cod_manifiesto} no encontrada`
           : `Ruta con ID ${dto.id_ruta} no encontrada`
       );
@@ -198,7 +208,7 @@ export class PaquetesService {
 
     // ← IMPORTANTE: Siempre asignar usando id_ruta (relación interna de BD)
     console.log('🔄 Asignando paquete', id, 'a ruta', ruta.id_ruta);
-    
+
     const paqueteActualizado = await this.prisma.paquete.update({
       where: {id_paquete: id},
       data: {
@@ -213,7 +223,7 @@ export class PaquetesService {
     });
 
     console.log('✅ Paquete asignado exitosamente');
-    
+
     return paqueteActualizado;
   }
 
@@ -224,7 +234,7 @@ export class PaquetesService {
 
   async cancelar(id: number) {
     console.log('❌ Cancelando asignación del paquete:', id);
-    
+
     const paquete = await this.prisma.paquete.findUnique({
       where: {id_paquete: id}
     });
@@ -252,11 +262,11 @@ export class PaquetesService {
       throw new NotFoundException('Paquete no encontrado');
     }
 
-    if (paquete.estado_paquete === 'Entregado' && dto.estado !== 'Entregado') {
-      throw new BadRequestException(
-        'No se puede modificar un paquete ya entregado'
-      );
-    }
+    //if (paquete.estado_paquete === 'Entregado' && dto.estado !== 'Entregado') {
+    //throw new BadRequestException(
+    //('No se puede modificar un paquete ya entregado');
+    //);
+    //}
 
     return this.prisma.paquete.update({
       where: {id_paquete: id},
@@ -307,14 +317,17 @@ export class PaquetesService {
       });
 
       console.log('✅ Rutas en estado Pendiente:', rutas.length);
-      
+
       if (rutas.length > 0) {
-        console.log('📦 Rutas:', rutas.map(r => ({
-          id: r.id_ruta,
-          codigo: r.cod_manifiesto,
-          estado: r.estado_ruta,
-          paquetes: r._count.paquete
-        })));
+        console.log(
+          '📦 Rutas:',
+          rutas.map(r => ({
+            id: r.id_ruta,
+            codigo: r.cod_manifiesto,
+            estado: r.estado_ruta,
+            paquetes: r._count.paquete
+          }))
+        );
       }
 
       return rutas;
