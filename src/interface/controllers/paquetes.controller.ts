@@ -60,7 +60,6 @@ export class PaquetesController {
 
   @Get('rutas-disponibles')
   async getRutasDisponibles() {
-    console.log(' Endpoint /paquetes/rutas-disponibles');
     return this.paquetesService.getRutasDisponibles();
   }
 
