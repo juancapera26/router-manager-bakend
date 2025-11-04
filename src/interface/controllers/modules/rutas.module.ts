@@ -9,9 +9,12 @@ import {ConductoresModule} from './conductores.module';
 import {AsignarConductorUseCase} from 'src/application/logistica/rutas/use-cases/asignar-conductor.use-case';
 import {RUTA_REPOSITORY_TOKEN} from 'src/domain/logistica/rutas/tokens/ruta-repository.token';
 import {EliminarRutaUseCase} from 'src/application/logistica/rutas/use-cases/eliminar-ruta.use-case';
+//Nuevas importaciones
+import {AsignarVehiculoUseCase} from 'src/application/logistica/rutas/use-cases/asignar-vehiculo.use-case';
+import {VehiculosModule} from './vehiculos.module';
 
 @Module({
-  imports: [ConductoresModule],
+  imports: [ConductoresModule, VehiculosModule],
   controllers: [RutasController],
   providers: [
     PrismaService,
@@ -23,7 +26,8 @@ import {EliminarRutaUseCase} from 'src/application/logistica/rutas/use-cases/eli
     CambiarEstadoRutaUseCase,
     CreateRutaUseCase,
     EliminarRutaUseCase,
-    AsignarConductorUseCase
+    AsignarConductorUseCase,
+    AsignarVehiculoUseCase
   ]
 })
 export class RutasModule {}
