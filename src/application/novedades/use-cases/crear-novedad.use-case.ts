@@ -6,6 +6,8 @@ import {
 import {Novedad} from '../../../domain/novedades/entities/novedad.entity';
 import {NovedadRepositoryToken} from 'src/domain/novedades/tokens/novedad-repository.token';
 
+//crear novedad
+
 @Injectable()
 export class CrearNovedadUseCase {
   constructor(

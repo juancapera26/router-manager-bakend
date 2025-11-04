@@ -2,6 +2,8 @@
 import { Injectable } from '@nestjs/common';
 import { NovedadesService } from '../../../rutas/novedades/novedades.service';
 
+// Obtener novedad
+
 @Injectable()
 export class ObtenerNovedadUseCase {
   constructor(private readonly novedadesService: NovedadesService) {}

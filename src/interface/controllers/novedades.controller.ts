@@ -23,6 +23,8 @@ import {FirebaseAuthGuard} from 'src/auth/guards/firebase-auth.guard';
 import {User} from 'src/auth/guards/decorators/user.decorator';
 import {CrearNovedadProps} from 'src/domain/novedades/repositories/novedad.repository';
 
+// Controlador de novedades
+
 @Controller('reportes')
 export class NovedadesController {
   constructor(

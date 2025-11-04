@@ -1,6 +1,8 @@
 import {Novedad} from '../entities/novedad.entity';
 import {novedades_tipo} from '@prisma/client';
 
+// Repositorio de novedades
+
 export interface CrearNovedadProps {
   descripcion: string;
   tipo: novedades_tipo;

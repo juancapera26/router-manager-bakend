@@ -2,6 +2,8 @@ import { Injectable, BadRequestException } from '@nestjs/common';
 import { CreateNovedadDto } from '../../interface/controllers/dto/create-novedad.dto';
 import { PrismaService } from '../../../prisma/prisma.service';
 
+// Servicio de novedades
+
 @Injectable()
 export class NovedadesService {
   constructor(private prisma: PrismaService) {}

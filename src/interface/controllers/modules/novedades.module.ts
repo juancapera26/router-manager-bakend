@@ -10,6 +10,8 @@ import { NovedadesService } from 'src/rutas/novedades/novedades.service';
 import { ObtenerNovedadUseCase } from 'src/application/novedades/use-cases/obtener-novedades.use-case';
 import { EliminarNovedadUseCase } from 'src/application/novedades/use-cases/eliminar-novedad.use-case';
 
+// Módulo de novedades
+
 @Module({
   imports: [PrismaModule],
   controllers: [NovedadesController],
