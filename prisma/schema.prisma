@@ -65,7 +65,7 @@ model rol {
 model ruta {
   id_ruta        Int              @id @default(autoincrement()) @db.UnsignedInt
   estado_ruta    ruta_estado_ruta @default(Pendiente)
-  fecha_inicio   DateTime         @db.DateTime(0)  // Sin el `?`, así es obligatorio
+  fecha_inicio   DateTime         @db.DateTime(0)
   fecha_fin      DateTime?        @db.DateTime(0)
   id_conductor   Int?             @db.UnsignedInt
   id_vehiculo    Int?             @db.UnsignedInt
@@ -79,7 +79,6 @@ model ruta {
   @@index([id_vehiculo], map: "idx_ruta_id_vehiculo")
   @@index([estado_ruta], map: "idx_ruta_estado")
 }
-
 
 model usuario {
   id_usuario               Int               @id @default(autoincrement()) @db.UnsignedInt
