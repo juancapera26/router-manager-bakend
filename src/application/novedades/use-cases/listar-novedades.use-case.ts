@@ -2,6 +2,8 @@
 import { Injectable } from '@nestjs/common';
 import { NovedadesService } from '../../../rutas/novedades/novedades.service';
 
+// Listar novedades
+
 export interface NovedadFrontend {
   id_novedad: number;
   descripcion: string;

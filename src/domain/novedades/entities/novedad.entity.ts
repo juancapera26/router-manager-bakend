@@ -1,3 +1,5 @@
+// entidad novedad
+
 export class Novedad {
   constructor(
     public id: number,

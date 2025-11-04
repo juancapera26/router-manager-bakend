@@ -1074,7 +1074,7 @@
 
 "@googlemaps/google-maps-services-js@^3.4.2":
   version "3.4.2"
-  resolved "https://registry.npmjs.org/@googlemaps/google-maps-services-js/-/google-maps-services-js-3.4.2.tgz"
+  resolved "https://registry.yarnpkg.com/@googlemaps/google-maps-services-js/-/google-maps-services-js-3.4.2.tgz#cdf75ce6a304e09026b22f7c362dbd3bb301d049"
   integrity sha512-QjxiJSt8woyPaaQIUUDNL1nRfCEXTiv8KfJSNq/YzKEUVXABT75GLG+Zo267UwOcq70n8OsZbaro5VrY962mJg==
   dependencies:
     "@googlemaps/url-signature" "^1.0.4"

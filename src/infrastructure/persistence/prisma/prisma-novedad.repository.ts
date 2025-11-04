@@ -6,6 +6,8 @@ import {
 } from '../../../domain/novedades/repositories/novedad.repository';
 import {Novedad} from '../../../domain/novedades/entities/novedad.entity';
 
+// Repositorio de novedades
+
 @Injectable()
 export class PrismaNovedadRepository implements NovedadRepository {
   constructor(private readonly prisma: PrismaService) {}
