@@ -17,7 +17,7 @@ import {extname} from 'path';
 import {CreateNovedadDto} from './dto/create-novedad.dto';
 import {CrearNovedadUseCase} from '../../application/novedades/use-cases/crear-novedad.use-case';
 import {ListarNovedadesUseCase} from '../../application/novedades/use-cases/listar-novedades.use-case';
-import {ObtenerNovedadUseCase} from '../../application/novedades/use-cases/obtener-novedades.use-case'
+import {ObtenerNovedadUseCase} from '../../application/novedades/use-cases/obtener-novedades.use-case';
 import {EliminarNovedadUseCase} from '../../application/novedades/use-cases/eliminar-novedad.use-case';
 import {FirebaseAuthGuard} from 'src/auth/guards/firebase-auth.guard';
 import {User} from 'src/auth/guards/decorators/user.decorator';
@@ -29,7 +29,7 @@ export class NovedadesController {
     private readonly crearNovedadUseCase: CrearNovedadUseCase,
     private readonly listarNovedadesUseCase: ListarNovedadesUseCase,
     private readonly obtenerNovedadUseCase: ObtenerNovedadUseCase,
-    private readonly eliminarNovedadUseCase: EliminarNovedadUseCase,
+    private readonly eliminarNovedadUseCase: EliminarNovedadUseCase
   ) {}
 
   // Subir una novedad
