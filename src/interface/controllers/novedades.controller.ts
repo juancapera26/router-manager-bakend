@@ -22,6 +22,7 @@ import {EliminarNovedadUseCase} from '../../application/novedades/use-cases/elim
 import {FirebaseAuthGuard} from 'src/auth/guards/firebase-auth.guard';
 import {User} from 'src/auth/guards/decorators/user.decorator';
 import {CrearNovedadProps} from 'src/domain/novedades/repositories/novedad.repository';
+import {PrismaService} from 'prisma/prisma.service';
 
 // Controlador de novedades
 
@@ -31,7 +32,8 @@ export class NovedadesController {
     private readonly crearNovedadUseCase: CrearNovedadUseCase,
     private readonly listarNovedadesUseCase: ListarNovedadesUseCase,
     private readonly obtenerNovedadUseCase: ObtenerNovedadUseCase,
-    private readonly eliminarNovedadUseCase: EliminarNovedadUseCase
+    private readonly eliminarNovedadUseCase: EliminarNovedadUseCase,
+    private readonly prisma: PrismaService
   ) {}
 
   // Subir una novedad
@@ -55,12 +57,24 @@ export class NovedadesController {
   ) {
     if (!uid) throw new UnauthorizedException('Usuario no autenticado');
 
+    // ✅ Buscar usuario en BD
+    const usuario = await this.prisma.usuario.findUnique({
+      where: {uid}
+    });
+
+    if (!usuario) {
+      throw new UnauthorizedException(
+        'Usuario no encontrado en la base de datos'
+      );
+    }
+
     const crearData: CrearNovedadProps = {
       descripcion: body.descripcion,
       tipo: body.tipo,
-      id_usuario: Number(uid),
       uid,
-      imagen: undefined
+      id_usuario: usuario.id_usuario,
+      imagen: file ? file.path : null,
+      fecha: new Date()
     };
 
     return this.crearNovedadUseCase.execute(crearData, file);

@@ -13,10 +13,14 @@ export class PrismaNovedadRepository implements NovedadRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async crear(data: CrearNovedadProps): Promise<Novedad> {
+    const tipoMap: Record<string, any> = {
+      Logistica: 'Log_stica',
+      Operativa: 'Operativa'
+    };
     const created = await this.prisma.novedades.create({
       data: {
         descripcion: data.descripcion,
-        tipo: data.tipo,
+        tipo: tipoMap[data.tipo] ?? data.tipo,
         fecha: data.fecha ?? new Date(),
         imagen: data.imagen ?? null,
         usuario: {

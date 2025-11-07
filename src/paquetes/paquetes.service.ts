@@ -15,8 +15,7 @@ import {paquete_estado_paquete} from '@prisma/client';
 
 @Injectable()
 export class PaquetesService {
-  constructor(
-    private prisma: PrismaService  ) {}
+  constructor(private prisma: PrismaService) {}
 
   getAll() {
     return this.prisma.paquete.findMany({
@@ -85,7 +84,7 @@ export class PaquetesService {
 
     return paqueteCreado;
   }
-    
+
   async update(id: number, dto: UpdatePaqueteDto) {
     const data: any = {};
 
@@ -162,11 +161,12 @@ export class PaquetesService {
 
     if (!ruta) {
       throw new NotFoundException(
-        dto.cod_manifiesto, dto.id_ruta 
+        dto.cod_manifiesto,
+        dto.id_ruta
           ? `Ruta con código ${dto.cod_manifiesto} no encontrada`
           : `Ruta con ID ${dto.id_ruta} no encontrada`
       );
-    }  
+    }
 
     if (ruta.estado_ruta !== 'Pendiente') {
       throw new BadRequestException(
@@ -219,17 +219,25 @@ export class PaquetesService {
     if (!paquete) {
       throw new NotFoundException('Paquete no encontrado');
     }
-    if (paquete.estado_paquete === 'Entregado' && dto.estado !== 'Entregado') {
+
+    // Verificamos si el paquete ya está en estado 'Entregado' o 'Fallido'
+    if (
+      (paquete.estado_paquete === 'Entregado' && dto.estado !== 'Entregado') ||
+      (paquete.estado_paquete === 'Fallido' && dto.estado !== 'Fallido')
+    ) {
       throw new BadRequestException(
-        'No se puede modificar un paquete ya entregado'
+        'No se puede modificar un paquete ya entregado o fallido'
       );
     }
+
+    // Actualizamos el estado
     return this.prisma.paquete.update({
       where: {id_paquete: id},
       data: {estado_paquete: dto.estado},
       include: {cliente: true, ruta: true, barrio: true}
     });
   }
+
   async findByEstado(estado: paquete_estado_paquete) {
     return this.prisma.paquete.findMany({
       where: {estado_paquete: estado},
@@ -252,38 +260,34 @@ export class PaquetesService {
   }
 
   async getRutasDisponibles() {
-    try {
-      const rutas = await this.prisma.ruta.findMany({
-        where: {
-          estado_ruta: 'Pendiente'
-        },
-        include: {
-          _count: {
-            select: {
-              paquete: true
-            }
+    const rutas = await this.prisma.ruta.findMany({
+      where: {
+        estado_ruta: 'Pendiente'
+      },
+      include: {
+        _count: {
+          select: {
+            paquete: true
           }
-        },
-        orderBy: {
-          id_ruta: 'desc'
         }
-      });
-
-      if (rutas.length > 0) {
-        console.log(
-          '📦 Rutas:',
-          rutas.map(r => ({
-            id: r.id_ruta,
-            codigo: r.cod_manifiesto,
-            estado: r.estado_ruta,
-            paquetes: r._count.paquete
-          }))
-        );
+      },
+      orderBy: {
+        id_ruta: 'desc'
       }
+    });
 
-      return rutas;
-    } catch (error) {
-      throw error;
+    if (rutas.length > 0) {
+      console.log(
+        '📦 Rutas:',
+        rutas.map(r => ({
+          id: r.id_ruta,
+          codigo: r.cod_manifiesto,
+          estado: r.estado_ruta,
+          paquetes: r._count.paquete
+        }))
+      );
     }
+
+    return rutas;
   }
 }
