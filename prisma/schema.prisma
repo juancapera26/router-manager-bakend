@@ -63,17 +63,18 @@ model rol {
 }
 
 model ruta {
-  id_ruta        Int              @id @default(autoincrement()) @db.UnsignedInt
-  estado_ruta    ruta_estado_ruta @default(Pendiente)
-  fecha_inicio   DateTime         @db.DateTime(0)
-  fecha_fin      DateTime?        @db.DateTime(0)
-  id_conductor   Int?             @db.UnsignedInt
-  id_vehiculo    Int?             @db.UnsignedInt
-  cod_manifiesto String?          @unique(map: "cod_manifiesto") @db.VarChar(50)
-  fecha_creacion DateTime         @default(now()) @db.DateTime(0)
-  paquete        paquete[]
-  usuario        usuario?         @relation(fields: [id_conductor], references: [id_usuario], map: "ruta_ibfk_1")
-  vehiculo       vehiculo?        @relation(fields: [id_vehiculo], references: [id_vehiculo], map: "ruta_ibfk_2")
+  id_ruta             Int                   @id @default(autoincrement()) @db.UnsignedInt
+  estado_ruta         ruta_estado_ruta      @default(Pendiente)
+  fecha_inicio        DateTime?             @db.DateTime(0)
+  fecha_fin           DateTime?             @db.DateTime(0)
+  id_conductor        Int?                  @db.UnsignedInt
+  id_vehiculo         Int?                  @db.UnsignedInt
+  cod_manifiesto      String?               @unique(map: "cod_manifiesto") @db.VarChar(50)
+  fecha_creacion      DateTime              @default(now()) @db.DateTime(0)
+  paquete             paquete[]
+  usuario             usuario?              @relation(fields: [id_conductor], references: [id_usuario], map: "ruta_ibfk_1")
+  vehiculo            vehiculo?             @relation(fields: [id_vehiculo], references: [id_vehiculo], map: "ruta_ibfk_2")
+  ubicacion_conductor ubicacion_conductor[]
 
   @@index([id_conductor], map: "idx_ruta_id_conductor")
   @@index([id_vehiculo], map: "idx_ruta_id_vehiculo")
@@ -148,6 +149,17 @@ model estado_conductor {
   usuario      usuario                 @relation(fields: [id_conductor], references: [id_usuario], onDelete: Cascade, map: "fk_estado_conductor_id_conductor")
 
   @@index([estado], map: "idx_estado_conductor_estado")
+}
+
+model ubicacion_conductor {
+  id_ubicacion   Int      @id @default(autoincrement()) @db.UnsignedInt
+  id_ruta        Int      @db.UnsignedInt
+  lat            Decimal  @db.Decimal(10, 8)
+  lng            Decimal  @db.Decimal(11, 8)
+  fecha_registro DateTime @default(now()) @db.DateTime(0)
+  ruta           ruta     @relation(fields: [id_ruta], references: [id_ruta], onDelete: Cascade, map: "fk_ubicacion_ruta")
+
+  @@index([id_ruta], map: "idx_ubicacion_id_ruta")
 }
 
 enum vehiculo_tipo {

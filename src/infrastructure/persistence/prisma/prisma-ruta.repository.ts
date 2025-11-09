@@ -89,9 +89,7 @@ export class PrismaRutaRepository implements RutaRepository {
   }
 
   // Actualizar ruta y estado del conductor automáticamente
-  // Actualizar ruta y estado del conductor automáticamente
   async update(id: number, data: Partial<CreateRutaData>): Promise<RutaEntity> {
-    // Asegúrate de que los valores sean enteros antes de la actualización
     if (data.id_conductor) {
       data.id_conductor = parseInt(data.id_conductor.toString(), 10);
     }
@@ -105,7 +103,6 @@ export class PrismaRutaRepository implements RutaRepository {
       data
     });
 
-    // Actualizar estado del conductor según el estado de la ruta
     if (rutaActualizada.id_conductor) {
       let estadoConductor: 'Disponible' | 'En_ruta' = 'Disponible';
       if (
@@ -129,6 +126,7 @@ export class PrismaRutaRepository implements RutaRepository {
     await this.prisma.ruta.delete({where: {id_ruta: id}});
     return true;
   }
+
   // Obtener ruta por código de manifiesto
   async findByCodigoManifiesto(codigo: string): Promise<RutaEntity | null> {
     const ruta = await this.prisma.ruta.findFirst({
@@ -167,7 +165,7 @@ export class PrismaRutaRepository implements RutaRepository {
     });
   }
 
-  // Mapeo de Prisma a entidad
+  // 🔹 Mapeo de Prisma a entidad con lat/lng incluidos
   private mapToEntity(ruta: any): RutaEntity {
     return {
       id_ruta: ruta.id_ruta,
@@ -201,6 +199,8 @@ export class PrismaRutaRepository implements RutaRepository {
             estado_paquete: p.estado_paquete,
             cantidad: p.cantidad,
             direccion_entrega: p.direccion_entrega,
+            lat: p.lat ?? null, // ✅ coordenada lat
+            lng: p.lng ?? null, // ✅ coordenada lng
             cliente: p.cliente
               ? {
                   id_cliente: p.cliente.id_cliente,
