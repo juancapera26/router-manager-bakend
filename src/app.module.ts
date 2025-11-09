@@ -11,6 +11,7 @@ import {ConductoresModule} from './interface/controllers/modules/conductores.mod
 import {RutasModule} from './interface/controllers/modules/rutas.module';
 import {PaquetesModule} from './interface/controllers/modules/paquetes.module';
 import {AdministradoresModule} from './interface/controllers/modules/administradores.module';
+import {UbicacionesModule} from './interface/controllers/modules/ubicaciones.module';
 
 @Module({
   imports: [
@@ -23,7 +24,8 @@ import {AdministradoresModule} from './interface/controllers/modules/administrad
     VehiculosModule,
     RutasModule,
     PaquetesModule,
-    AdministradoresModule
+    AdministradoresModule,
+    UbicacionesModule
   ]
 })
 export class AppModule {}
