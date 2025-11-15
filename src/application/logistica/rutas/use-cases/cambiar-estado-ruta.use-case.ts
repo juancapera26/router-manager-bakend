@@ -16,21 +16,31 @@ export class CambiarEstadoRutaUseCase {
     );
     if (!ruta) throw new Error('Ruta no encontrada');
 
-    // 🔹 Nuevo flujo reducido
+      // 🔹 Flujo permitido de estados
     const flujoValido: Record<string, string[]> = {
       Pendiente: ['Asignada'],
       Asignada: ['Completada', 'Fallida'],
+      En_ruta: ['Completada', 'Fallida'],
       Completada: [],
       Fallida: []
     };
 
-    if (!flujoValido[ruta.estado_ruta].includes(nuevoEstado)) {
-      throw new Error(
-        `No se puede cambiar de ${ruta.estado_ruta} a ${nuevoEstado}`
-      );
+    // 🔹 Normalizar valores por si vienen con espacios u otros formatos
+    const estadoActual = ruta.estado_ruta.trim();
+    const nuevo = String(nuevoEstado).trim();
+
+    console.log('🪶 DEBUG cambio de estado:', {
+      actual: estadoActual,
+      nuevo,
+      permitidos: flujoValido[estadoActual]
+    });
+
+    // 🔹 Validar transición
+    if (!flujoValido[estadoActual]?.includes(nuevo)) {
+      throw new Error(`No se puede cambiar de ${estadoActual} a ${nuevo}`);
     }
 
-    // 🔹 Actualiza la ruta
+    // 🔹 Actualizar estado de la ruta
     return this.rutaRepo.update(id_ruta, {estado_ruta: nuevoEstado});
   }
 }
