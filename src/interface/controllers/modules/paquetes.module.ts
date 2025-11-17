@@ -4,10 +4,11 @@ import {PaquetesService} from '../../../paquetes/paquetes.service';
 import {PrismaPaqueteRepository} from 'src/infrastructure/persistence/prisma/prisma-paquete.repository';
 import {ClientesModule} from 'src/clientes/clientes.module';
 import {PrismaService} from 'src/infrastructure/persistence/prisma/prisma.service';
+import { NotificationsModule } from './notifications.module';
 //modulo1
 
 @Module({
-  imports: [ClientesModule],
+  imports: [ClientesModule, NotificationsModule],
   controllers: [PaquetesController],
   providers: [PaquetesService, PrismaPaqueteRepository, PrismaService]
 })

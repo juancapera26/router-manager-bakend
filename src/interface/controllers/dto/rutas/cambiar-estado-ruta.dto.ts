@@ -5,4 +5,5 @@ import {ruta_estado_ruta} from '@prisma/client';
 export class CambiarEstadoRutaDto {
   @IsEnum(ruta_estado_ruta)
   nuevoEstado: ruta_estado_ruta;
+  adminId?: number;
 }
