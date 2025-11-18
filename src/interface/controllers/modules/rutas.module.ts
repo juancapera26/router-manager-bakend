@@ -12,9 +12,10 @@ import {EliminarRutaUseCase} from 'src/application/logistica/rutas/use-cases/eli
 //Nuevas importaciones
 import {AsignarVehiculoUseCase} from 'src/application/logistica/rutas/use-cases/asignar-vehiculo.use-case';
 import {VehiculosModule} from './vehiculos.module';
+import { NotificationsModule } from './notifications.module';
 
 @Module({
-  imports: [ConductoresModule, VehiculosModule],
+  imports: [ConductoresModule, VehiculosModule, NotificationsModule],
   controllers: [RutasController],
   providers: [
     PrismaService,
