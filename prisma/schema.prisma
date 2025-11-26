@@ -25,6 +25,42 @@ model empresa {
   usuario          usuario[]
 }
 
+model barrio {
+  id_barrio     Int       @id @default(autoincrement()) @db.UnsignedInt
+  nombre_barrio String    @db.VarChar(30)
+  id_localidad  Int       @db.UnsignedInt
+  localidad     localidad @relation(fields: [id_localidad], references: [id_localidad], map: "barrio_ibfk_1")
+  paquete       paquete[]
+
+  @@index([id_localidad], map: "idx_barrio_id_localidad")
+}
+
+model estado_conductor {
+  id_conductor Int                     @id @db.UnsignedInt
+  estado       estado_conductor_estado @default(Disponible)
+  usuario      usuario                 @relation(fields: [id_conductor], references: [id_usuario], onDelete: Cascade, map: "fk_estado_conductor_id_conductor")
+
+  @@index([estado], map: "idx_estado_conductor_estado")
+}
+
+model localidad {
+  id_localidad     Int      @id @default(autoincrement()) @db.UnsignedInt
+  nombre_localidad String   @db.VarChar(30)
+  barrio           barrio[]
+}
+
+model novedades {
+  id_novedad  Int            @id @default(autoincrement()) @db.UnsignedInt
+  descripcion String         @db.VarChar(100)
+  tipo        novedades_tipo
+  fecha       DateTime       @db.Date
+  id_usuario  Int            @db.UnsignedInt
+  imagen      String?        @db.VarChar(255)
+  usuario     usuario        @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade, map: "novedad_ibfk_1")
+
+  @@index([id_usuario], map: "idx_novedades_id_usuario")
+}
+
 model paquete {
   id_paquete          Int                    @id @default(autoincrement()) @db.UnsignedInt
   codigo_rastreo      String?                @unique(map: "codigo_rastreo") @db.VarChar(50)
@@ -50,10 +86,10 @@ model paquete {
   ruta                ruta?                  @relation(fields: [id_ruta], references: [id_ruta], map: "paquete_ibfk_2")
   barrio              barrio?                @relation(fields: [id_barrio], references: [id_barrio], map: "paquete_ibfk_3")
 
-  @@index([id_cliente], map: "idx_paquete_id_cliente")
-  @@index([id_barrio], map: "idx_paquete_id_barrio")
-  @@index([id_ruta], map: "idx_paquete_id_ruta")
   @@index([estado_paquete], map: "idx_paquete_estado")
+  @@index([id_barrio], map: "idx_paquete_id_barrio")
+  @@index([id_cliente], map: "idx_paquete_id_cliente")
+  @@index([id_ruta], map: "idx_paquete_id_ruta")
 }
 
 model rol {
@@ -76,9 +112,20 @@ model ruta {
   vehiculo            vehiculo?             @relation(fields: [id_vehiculo], references: [id_vehiculo], map: "ruta_ibfk_2")
   ubicacion_conductor ubicacion_conductor[]
 
+  @@index([estado_ruta], map: "idx_ruta_estado")
   @@index([id_conductor], map: "idx_ruta_id_conductor")
   @@index([id_vehiculo], map: "idx_ruta_id_vehiculo")
-  @@index([estado_ruta], map: "idx_ruta_estado")
+}
+
+model ubicacion_conductor {
+  id_ubicacion   Int      @id @default(autoincrement()) @db.UnsignedInt
+  id_ruta        Int      @db.UnsignedInt
+  lat            Decimal  @db.Decimal(10, 8)
+  lng            Decimal  @db.Decimal(11, 8)
+  fecha_registro DateTime @default(now()) @db.DateTime(0)
+  ruta           ruta     @relation(fields: [id_ruta], references: [id_ruta], onDelete: Cascade, map: "fk_ubicacion_ruta")
+
+  @@index([id_ruta], map: "idx_ubicacion_id_ruta")
 }
 
 model usuario {
@@ -115,65 +162,6 @@ model vehiculo {
   ruta            ruta[]
 }
 
-model barrio {
-  id_barrio     Int       @id @default(autoincrement()) @db.UnsignedInt
-  nombre_barrio String    @db.VarChar(30)
-  id_localidad  Int       @db.UnsignedInt
-  localidad     localidad @relation(fields: [id_localidad], references: [id_localidad], map: "barrio_ibfk_1")
-  paquete       paquete[]
-
-  @@index([id_localidad], map: "idx_barrio_id_localidad")
-}
-
-model localidad {
-  id_localidad     Int      @id @default(autoincrement()) @db.UnsignedInt
-  nombre_localidad String   @db.VarChar(30)
-  barrio           barrio[]
-}
-
-model novedades {
-  id_novedad  Int            @id @default(autoincrement()) @db.UnsignedInt
-  descripcion String         @db.VarChar(100)
-  tipo        novedades_tipo
-  fecha       DateTime       @db.Date
-  id_usuario  Int            @db.UnsignedInt
-  imagen      String?        @db.VarChar(255)
-  usuario     usuario        @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade, map: "novedad_ibfk_1")
-
-  @@index([id_usuario], map: "idx_novedades_id_usuario")
-}
-
-model estado_conductor {
-  id_conductor Int                     @id @db.UnsignedInt
-  estado       estado_conductor_estado @default(Disponible)
-  usuario      usuario                 @relation(fields: [id_conductor], references: [id_usuario], onDelete: Cascade, map: "fk_estado_conductor_id_conductor")
-
-  @@index([estado], map: "idx_estado_conductor_estado")
-}
-
-model ubicacion_conductor {
-  id_ubicacion   Int      @id @default(autoincrement()) @db.UnsignedInt
-  id_ruta        Int      @db.UnsignedInt
-  lat            Decimal  @db.Decimal(10, 8)
-  lng            Decimal  @db.Decimal(11, 8)
-  fecha_registro DateTime @default(now()) @db.DateTime(0)
-  ruta           ruta     @relation(fields: [id_ruta], references: [id_ruta], onDelete: Cascade, map: "fk_ubicacion_ruta")
-
-  @@index([id_ruta], map: "idx_ubicacion_id_ruta")
-}
-
-enum vehiculo_tipo {
-  camioneta
-  moto
-  furgon
-  camion
-}
-
-enum usuario_estado {
-  activo
-  inactivo
-}
-
 enum estado_conductor_estado {
   Disponible
   En_ruta       @map("En ruta")
@@ -186,6 +174,18 @@ enum ruta_estado_ruta {
   En_ruta    @map("En ruta")
   Completada
   Fallida
+}
+
+enum novedades_tipo {
+  Log_stica @map("Logística")
+  Operativa
+}
+
+enum vehiculo_tipo {
+  camioneta
+  moto
+  furgon
+  camion
 }
 
 enum vehiculo_estado_vehiculo {
@@ -201,15 +201,15 @@ enum paquete_estado_paquete {
   Fallido
 }
 
+enum usuario_estado {
+  activo
+  inactivo
+}
+
 enum paquete_tipo_paquete {
   Grande
   Mediano
   Pequeno
   Refrigerado
   Fragil
-}
-
-enum novedades_tipo {
-  Log_stica @map("Logística")
-  Operativa
 }
