@@ -32,7 +32,8 @@ COPY --from=builder /app/yarn.lock ./yarn.lock
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/src/prisma ./src/prisma
-COPY --from=builder /app/uploads ./uploads
+# Crear carpeta uploads con subcarpetas vacías
+RUN mkdir -p /app/uploads/entregas /app/uploads/perfiles
 
 # Health check para verificar que la app está funcionando
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
