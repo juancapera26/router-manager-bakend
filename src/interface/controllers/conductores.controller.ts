@@ -65,8 +65,16 @@ export class ConductoresController {
     @UploadedFile() file: Express.Multer.File
   ) {
     if (!file) throw new BadRequestException('No file uploaded');
-    const fotoUrl = `http://localhost:8080/uploads/perfiles/${file.filename}`;
+
+    // Definir la base URL según entorno
+    const baseUrl =
+      process.env.NODE_ENV === 'production'
+        ? 'https://router-manager-bakend.onrender.com'
+        : 'http://localhost:8080';
+
+    const fotoUrl = `${baseUrl}/uploads/perfiles/${file.filename}`;
     const idNumber = Number(id);
+
     return this.updateUC.execute(idNumber, {foto_perfil: fotoUrl});
   }
 
