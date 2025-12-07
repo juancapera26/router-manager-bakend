@@ -1,8 +1,10 @@
 /* src/interface/controllers/administradores.controller.ts */
+
 import {
   Controller,
   Patch,
   Param,
+  Body,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -19,7 +21,34 @@ import {UpdateAdminUseCase} from 'src/application/administrador/use-cases/update
 export class AdministradoresController {
   constructor(private readonly updateUC: UpdateAdminUseCase) {}
 
-  // Subir o actualizar foto del administrador
+  // ======================
+  // Actualizar DATOS del administrador
+  // ======================
+  @UseGuards(FirebaseAuthGuard)
+  @Patch(':id')
+  async updateAdmin(
+    @Param('id') id: string,
+    @Body()
+    body: {
+      nombre?: string;
+      apellido?: string;
+      telefono_movil?: string;
+      tipo_documento?: string;
+      documento?: string;
+      id_empresa?: number;
+    }
+  ) {
+    const idNumber = Number(id);
+    if (isNaN(idNumber)) {
+      throw new BadRequestException('ID inválido');
+    }
+
+    return this.updateUC.execute(idNumber, body);
+  }
+
+  // ======================
+  // Subir o actualizar FOTO del administrador
+  // ======================
   @UseGuards(FirebaseAuthGuard)
   @Patch(':id/foto')
   @UseInterceptors(
