@@ -90,7 +90,7 @@ export class NovedadesController {
   // Obtener una novedad por ID
   @Get('historial/:id')
   async obtenerNovedad(@Param('id') id: string) {
-    console.log('🔍 GET /reportes/historial/:id - ID:', id);
+    console.log(' GET /reportes/historial/:id - ID:', id);
     return this.obtenerNovedadUseCase.execute(Number(id));
   }
 
