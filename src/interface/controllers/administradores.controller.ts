@@ -34,6 +34,7 @@ export class AdministradoresController {
       apellido?: string;
       telefono_movil?: string;
       tipo_documento?: string;
+      correo?: string;
       documento?: string;
       id_empresa?: number;
     }
@@ -43,7 +44,13 @@ export class AdministradoresController {
       throw new BadRequestException('ID inválido');
     }
 
-    return this.updateUC.execute(idNumber, body);
+    const result = await this.updateUC.execute(idNumber, body);
+    
+    // Transformar 'rol' a 'role' para que coincida con el frontend
+    return {
+      ...result,
+      role: result.id_rol,
+    };
   }
 
   // ======================
@@ -73,6 +80,12 @@ export class AdministradoresController {
     const fotoUrl = `http://localhost:3000/uploads/perfiles/${file.filename}`;
     const idNumber = Number(id);
 
-    return this.updateUC.execute(idNumber, {foto_perfil: fotoUrl});
+    const result = await this.updateUC.execute(idNumber, {foto_perfil: fotoUrl});
+    
+    // Transformar 'rol' a 'role' para que coincida con el frontend
+    return {
+      ...result,
+      role: result.id_rol,
+    };
   }
 }
