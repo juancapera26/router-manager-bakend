@@ -3,7 +3,23 @@ import { IsString, IsNumber, IsOptional, IsEnum, ValidateNested, IsEmail } from 
 import { Type } from 'class-transformer';
 import { paquete_tipo_paquete } from '@prisma/client';
 
-//dto crear paquete1
+class remitenteDto {
+
+  @IsString()
+  remitente_nombre: string;
+
+  @IsString()
+  remitente_apellido: string;
+  
+  @IsString()
+  remitente_telefono: string;
+  
+  @IsString()
+  remitente_empresa: string;
+   
+  @IsEmail()
+  remitente_correo: string | null;             
+}
 
 // ✅ DTO para el destinatario (coincide con el frontend)
 class DestinatarioDto {
@@ -47,6 +63,10 @@ export class CreatePaqueteDto {
   @ValidateNested()
   @Type(() => DimensionesDto)
   dimensiones: DimensionesDto;
+
+  @ValidateNested()
+  @Type(() => remitenteDto)
+  remitente: remitenteDto;
 
   @IsEnum(paquete_tipo_paquete)
   tipo_paquete: paquete_tipo_paquete;

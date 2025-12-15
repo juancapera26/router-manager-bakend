@@ -2,7 +2,7 @@
 
 export class Novedad {
   constructor(
-    public id: number,
+    public id_novedad: number,
     public descripcion: string,
     public tipo: string,
     public fecha: Date,

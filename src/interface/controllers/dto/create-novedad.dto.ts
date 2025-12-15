@@ -1,5 +1,5 @@
 // src/interface/controllers/dto/create-novedad.dto.ts
-import {IsEnum, IsNotEmpty, IsOptional} from 'class-validator';
+import {IsEnum, isNotEmpty, IsNotEmpty, IsOptional} from 'class-validator';
 import {novedades_tipo} from '@prisma/client'; // 👈 Prisma genera este enum
 
 export class CreateNovedadDto {
@@ -11,4 +11,5 @@ export class CreateNovedadDto {
 
   @IsOptional()
   imagen?: string; // ruta o nombre del archivo guardado
+   
 }

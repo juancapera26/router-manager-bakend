@@ -33,7 +33,7 @@ export class PaquetesService {
     });
   }
 
-  async getOne(id: number) {
+  async getOne(id: number) { 
     return this.prisma.paquete.findUnique({
       where: { id_paquete: id },
       include: { cliente: true, ruta: true, barrio: true }
@@ -52,25 +52,44 @@ export class PaquetesService {
     });
 
     const paqueteCreado = await this.prisma.paquete.create({
-      data: {
-        largo: dto.dimensiones.largo,
-        ancho: dto.dimensiones.ancho,
-        alto: dto.dimensiones.alto,
-        peso: dto.dimensiones.peso,
-        tipo_paquete: dto.tipo_paquete,
-        cantidad: dto.cantidad,
-        valor_declarado: dto.valor_declarado,
-        id_cliente: nuevoCliente.id_cliente,
-        direccion_entrega: dto.direccion_entrega || dto.destinatario.direccion,
-        lat: dto.lat,
-        lng: dto.lng,
-        id_barrio: dto.id_barrio,
-        estado_paquete: 'Pendiente',
-        fecha_registro: new Date()
-      },
-      include: { cliente: true, barrio: true }
-    });
+  data: {
+    // REMITENTE
+    remitente_nombre: dto.remitente.remitente_nombre,
+    remitente_apellido: dto.remitente.remitente_apellido,
+    remitente_telefono: dto.remitente.remitente_telefono,
+    remitente_correo: dto.remitente.remitente_correo,
+    remitente_empresa: dto.remitente.remitente_empresa,
 
+    // DIMENSIONES
+    largo: dto.dimensiones.largo,
+    ancho: dto.dimensiones.ancho,
+    alto: dto.dimensiones.alto,
+    peso: dto.dimensiones.peso,
+
+    // PAQUETE
+    tipo_paquete: dto.tipo_paquete,
+    cantidad: dto.cantidad,
+    valor_declarado: dto.valor_declarado,
+
+    // DESTINATARIO
+    direccion_entrega:
+      dto.direccion_entrega || dto.destinatario.direccion,
+
+    id_cliente: nuevoCliente.id_cliente,
+    lat: dto.lat,
+    lng: dto.lng,
+    id_barrio: dto.id_barrio,
+
+    estado_paquete: 'Pendiente',
+    fecha_registro: new Date(),
+  },
+
+  include: {
+    cliente: true,
+    ruta:true,
+    barrio:true,
+  },
+});
     if (!paqueteCreado.codigo_rastreo) {
       const codigoRastreo = `PKG-${String(paqueteCreado.id_paquete).padStart(6, '0')}`;
       return this.prisma.paquete.update({
