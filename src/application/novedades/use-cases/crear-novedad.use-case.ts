@@ -5,14 +5,18 @@ import {
 } from '../../../domain/novedades/repositories/novedad.repository';
 import {Novedad} from '../../../domain/novedades/entities/novedad.entity';
 import {NovedadRepositoryToken} from 'src/domain/novedades/tokens/novedad-repository.token';
-
-//crear novedad
+import {NotificationsService} from 'src/application/notifications/notifications.service';
+import {PrismaService} from 'prisma/prisma.service';
 
 @Injectable()
 export class CrearNovedadUseCase {
   constructor(
     @Inject(NovedadRepositoryToken)
-    private readonly novedadRepo: NovedadRepository
+    private readonly novedadRepo: NovedadRepository,
+    @Inject(PrismaService) // ✅ Agregar @Inject explícito
+    private readonly prisma: PrismaService,
+    @Inject(NotificationsService) // ✅ Agregar @Inject explícito
+    private readonly notificationsService: NotificationsService
   ) {}
 
   async execute(
@@ -22,14 +26,30 @@ export class CrearNovedadUseCase {
     let imagenPath: string | null = null;
 
     if (file) {
-      // Multer ya guardó el archivo en ./uploads
       imagenPath = `uploads/${file.filename}`;
     }
 
-    // Llamada al repositorio con la ruta de imagen si existe
-    return this.novedadRepo.crear({
+    const novedad = await this.novedadRepo.crear({
       ...data,
       imagen: imagenPath
     });
+
+    const conductor = await this.prisma.usuario.findUnique({
+      where: { id_usuario: data.id_usuario },
+      select: { nombre: true, apellido: true }
+    });
+
+    const nombreCompleto = conductor 
+      ? `${conductor.nombre} ${conductor.apellido}` 
+      : 'Desconocido';
+
+    this.notificationsService.notifyReporteCreado(
+      data.id_usuario,
+      nombreCompleto,
+      novedad.id_novedad,
+      data.tipo
+    );
+
+    return novedad;
   }
 }

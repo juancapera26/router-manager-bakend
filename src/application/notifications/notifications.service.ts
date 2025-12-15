@@ -92,4 +92,28 @@ export class NotificationsService {
       `Notificación enviada al conductor ID ${idConductor}: Ruta ${codManifiesto} asignada`
     );
   }
+
+  notifyReporteCreado(
+    id_conductor: number,
+    nombre_conductor: string,
+    id_novedad: number,
+    tipo_novedad: string,
+  ){
+    const notification: NotificationPayload = {
+      type: 'reporte_creado',
+      title: 'Nueva Novedad Recibida',
+      message: ` El conductor ${nombre_conductor} ha notificado una incidencia`,
+      data: {
+        id_novedad: id_novedad,
+        id_conductor: id_conductor,
+        tipo_novedad: tipo_novedad,
+      },
+      timestamp: new Date (),
+    };
+
+    this.notificationsGateway.notifyAllAdmins(notification);
+    this.logger.log(
+      `Nuevo reporte ${id_novedad} del condcutor ${nombre_conductor}`
+    );
+  }
 }

@@ -10,8 +10,9 @@ import {
 import { Server, Socket } from 'socket.io';
 import { Logger } from '@nestjs/common';
 
+
 export interface NotificationPayload {
-  type: 'ruta_completada' | 'ruta_fallida' | 'ruta_asignada';
+  type: 'ruta_completada' | 'ruta_fallida' | 'ruta_asignada' | 'reporte_creado';
   title: string;
   message: string;
   data?: {
@@ -19,6 +20,9 @@ export interface NotificationPayload {
     cod_manifiesto?: string;
     estado_ruta?: string;
     id_conductor?: number;
+    id_novedad?: number,
+    tipo_novedad?: string,
+    
   };
   timestamp: Date;
 }
