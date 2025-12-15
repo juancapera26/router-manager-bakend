@@ -82,6 +82,11 @@ model paquete {
   cantidad            Int
   imagen_entrega      String?                @db.VarChar(255)
   observacion_entrega String?                @db.Text
+  remitente_nombre    String?                @db.VarChar(100)
+  remitente_apellido  String?                @db.VarChar(100)
+  remitente_telefono  String?                @db.VarChar(30)
+  remitente_empresa   String?                @db.VarChar(100)
+  remitente_correo    String?                @db.VarChar(100)
   cliente             cliente                @relation(fields: [id_cliente], references: [id_cliente], map: "paquete_ibfk_1")
   ruta                ruta?                  @relation(fields: [id_ruta], references: [id_ruta], map: "paquete_ibfk_2")
   barrio              barrio?                @relation(fields: [id_barrio], references: [id_barrio], map: "paquete_ibfk_3")
